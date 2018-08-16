@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import {ERROR_CODES, PuzzleError} from "./errors";
 // noinspection TsLint
 type Ctor<T> = new (...args: any[]) => T;
 
@@ -21,7 +22,8 @@ export class Injector {
   private static instances: constructedInstance[] = [];
 
   static decorate(cb: Function, config?: object) {
-    return <T>(constructor: Ctor<T>): Function => {
+    // noinspection TsLint
+    return (constructor: any): any => {
       cb(constructor);
       const configuredConstructor = Injector.inject(constructor, config);
       configuredConstructor.config = config;
@@ -37,7 +39,7 @@ export class Injector {
     const injectionToken = Injector.instances.find((f: constructedInstance) => f.constructor === constructor);
 
     if (!injectionToken) {
-      throw new Error(`Invalid injection, ${constructor.name} is not registered as Injectable`);
+      throw new PuzzleError(ERROR_CODES.CLASS_NOT_REGISTERED_AS_INJECTABLE, constructor.name);
     }
 
     let instance;
@@ -58,7 +60,7 @@ export class Injector {
     const injectionToken = Injector.instances.find((f: constructedInstance) => f.constructor === constructor);
 
     if (!injectionToken) {
-      throw new Error(`Invalid injection, ${constructor.name} is not registered as Injectable`);
+      throw new PuzzleError(ERROR_CODES.CLASS_NOT_REGISTERED_AS_INJECTABLE, constructor.name);
     }
 
     let instance;

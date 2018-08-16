@@ -2,6 +2,7 @@ import sinon from "sinon";
 import faker from "faker";
 import {expect} from "chai";
 import {Injector, Injectable} from "../lib/injector";
+import {ERROR_CODES, PuzzleError} from "../lib/errors";
 
 describe('Injector', () => {
   it('should export class Injector', () => {
@@ -91,7 +92,7 @@ describe('Injector', () => {
     };
 
     //Assert
-    expect(test).to.throw("NonInjected");
+    expect(test).to.throw(PuzzleError, (new PuzzleError(ERROR_CODES.CLASS_NOT_REGISTERED_AS_INJECTABLE, NonInjected.name)).message);
   });
 
   it('should throw error for not registered class trying to inject from arguments', () => {
@@ -113,7 +114,7 @@ describe('Injector', () => {
     };
 
     //Assert
-    expect(test).to.throw("NonInjected");
+    expect(test).to.throw(PuzzleError, (new PuzzleError(ERROR_CODES.CLASS_NOT_REGISTERED_AS_INJECTABLE, NonInjected.name)).message);
   });
 
   it('should decorate class with config', () => {
