@@ -21,6 +21,12 @@ interface ConfiguredDecorator extends Ctor<any> {
 export class Injector {
   private static instances: constructedInstance[] = [];
 
+  /**
+   * Returns constructor wrapper for config injection
+   * @param {Function} cb
+   * @param {object} config
+   * @returns {(constructor: any) => any}
+   */
   static decorate(cb: Function, config?: object) {
     // noinspection TsLint
     return (constructor: any): any => {
@@ -31,10 +37,21 @@ export class Injector {
     };
   }
 
+  /**
+   * Marks class as injectable
+   * @param {Ctor<T>} constructor
+   * @returns {Ctor<T>}
+   * @constructor
+   */
   static Injectable<T>(constructor: Ctor<T>): Ctor<T> {
     return Injector.inject(constructor);
   }
 
+  /**
+   * Gets instance from injectable class
+   * @param {Ctor<T>} constructor
+   * @returns {object}
+   */
   static get<T>(constructor: Ctor<T>): object {
     const injectionToken = Injector.instances.find((f: constructedInstance) => f.constructor === constructor);
 
@@ -51,11 +68,22 @@ export class Injector {
     return injectionToken.instance;
   }
 
+  /**
+   * Registers class token into instances
+   * @param {Ctor<T>} constructor
+   * @param {object} config
+   * @returns {ConfiguredDecorator}
+   */
   private static inject<T>(constructor: Ctor<T>, config: object = {}): ConfiguredDecorator {
     Injector.instances.push({constructor, instance: null, config});
     return constructor;
   }
 
+  /**
+   * Returns class token
+   * @param {Ctor<T>} constructor
+   * @returns {constructedInstance}
+   */
   private static getToken<T>(constructor: Ctor<T>): constructedInstance {
     const injectionToken = Injector.instances.find((f: constructedInstance) => f.constructor === constructor);
 
@@ -72,6 +100,11 @@ export class Injector {
     return injectionToken;
   }
 
+  /**
+   * Gets constructor parameters with Reflect
+   * @param {Ctor<T>} constructor
+   * @returns {any}
+   */
   private static getInjectionParameters<T>(constructor: Ctor<T>){
     const parameters = Reflect.getMetadata("design:paramtypes", constructor);
     if(!!parameters){
@@ -81,5 +114,6 @@ export class Injector {
     }
   }
 }
+
 
 export const Injectable = Injector.Injectable;

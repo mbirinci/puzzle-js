@@ -10,7 +10,13 @@ const ERROR_MESSAGES: { [name: string]: (...args: string[]) => string; } = Objec
   [ERROR_CODES.CLASS_NOT_REGISTERED_AS_INJECTABLE]: (className: string) => `Invalid injection, ${className} is not registered as Injectable`,
 });
 
+
 export class PuzzleError extends Error {
+  /**
+   * Generates throwable errors
+   * @param {ERROR_CODES} ERROR_CODE
+   * @param {string} args
+   */
   constructor(ERROR_CODE: ERROR_CODES = ERROR_CODES.UNKNOWN, ...args: string[]) {
     super(ERROR_MESSAGES[ERROR_CODE].apply(null, args));
     Object.setPrototypeOf(this, PuzzleError.prototype);
