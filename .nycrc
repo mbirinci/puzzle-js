@@ -1,0 +1,21 @@
+{
+"extension": [
+    ".ts",
+    ".tsx"
+  ],
+  "exclude": [
+    "**/*.d.ts",
+    "test/**",
+    "dist/**",
+    "coverage/**",
+    "demo",
+    "lib/types",
+    "**/*.js"
+  ],
+  "reporter": [
+    "text"
+  ],
+  "all": true,
+  "lines": 100,
+  "branch": 100
+}
