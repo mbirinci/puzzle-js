@@ -1,6 +1,8 @@
-import {HTTP_METHODS, Request, Response, Route, Server} from "../lib/server";
+import {HTTP_METHODS, Route, Server} from "../lib/server";
 import sinon from "sinon";
 import {expect} from "chai";
+import {IncomingMessage, ServerResponse} from "http";
+import {FastifyReply, FastifyRequest} from "fastify";
 
 describe('Server', () => {
   it('should create server instance', () => {
@@ -16,7 +18,7 @@ describe('Server', () => {
     const route = new Route('/');
     const server = new Server();
     const spy = sinon.spy(server.app, 'get');
-    const handler = (req: Request, res: Response) => {};
+    const handler = (req: FastifyRequest<IncomingMessage>, res: FastifyReply<ServerResponse>) => {};
 
     //Act
     server.addRoute(route, HTTP_METHODS.GET, handler);
@@ -31,7 +33,7 @@ describe('Server', () => {
     const route = new Route('/');
     const server = new Server();
     const spy = sinon.spy(server.app, 'use');
-    const handler = (req: Request, res: Response, next: Function) => {};
+    const handler = (req: IncomingMessage, res: ServerResponse, next: Function) => {};
 
     //Act
     server.addUse(route, handler);
