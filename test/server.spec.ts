@@ -17,15 +17,20 @@ describe('Server', () => {
     //Arrange
     const route = new Route('/');
     const server = new Server();
-    const spy = sinon.spy(server.app, 'get');
+    const method = HTTP_METHODS.GET;
+    const spy = sinon.spy(server.app, 'route');
     const handler = (req: FastifyRequest<IncomingMessage>, res: FastifyReply<ServerResponse>) => {};
 
     //Act
-    server.addRoute(route, HTTP_METHODS.GET, handler);
+    server.addRoute(route, method, handler);
 
     //Assert
     expect(spy.calledOnce).to.eq(true);
-    expect(spy.calledWithExactly(route.toString(), handler)).to.eq(true);
+    expect(spy.calledWithExactly({
+      method,
+      url: route.toString(),
+      handler
+    })).to.eq(true);
   });
 
   it('should add middleware route', () => {
