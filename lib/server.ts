@@ -1,11 +1,22 @@
 import {Injectable} from "./injector";
-import fastify, {RequestHandler, RouteSchema} from "fastify";
+import fastify, {FastifyReply, FastifyRequest, RequestHandler, RouteSchema} from "fastify";
 import {IncomingMessage, ServerResponse} from "http";
 
-export type Middleware = (req: IncomingMessage, response: ServerResponse, next: Function) => void;
+
+export interface Reply extends FastifyReply<ServerResponse> {
+  chunk: (str: string) => void;
+}
+
+export interface Request extends FastifyRequest<IncomingMessage> {
+
+}
+
+export type Middleware = (req: IncomingMessage, reply: ServerResponse, next: Function) => void;
+export type Handler = (req: Request, reply: Reply) => void;
+
 
 export enum HTTP_METHODS {
-  GET = 'DELETE',
+  GET = 'GET',
   POST = 'POST',
   PUT = 'PUT',
   HEAD = 'HEAD'
@@ -17,30 +28,57 @@ export class Server {
 
   constructor() {
     this.app = fastify({
-      logger: true
+      logger: true,
     });
+
+    //this.decorateChunk();
   }
 
-  addRoute(route: Route[] | Route, method: HTTP_METHODS, handler: RequestHandler<IncomingMessage, ServerResponse>, schema?: RouteSchema) {
-    const routes = Array.isArray(route)? route.map(route => route.toString()) : [route.toString()];
+  /**
+   * Adds new route to fastify instance
+   * @param {Route[] | Route} route
+   * @param {HTTP_METHODS} method
+   * @param {Handler} handler
+   * @param {fastify.RouteSchema} schema
+   */
+  addRoute(route: Route[] | Route, method: HTTP_METHODS, handler: Handler, schema?: RouteSchema) {
+    const routes = Array.isArray(route) ? route.map(route => route.toString()) : [route.toString()];
 
     routes.forEach(route => {
       this.app.route({
         method,
         url: route,
         ...schema ? {schema} : {},
-        handler
+        handler: (handler as RequestHandler<IncomingMessage, ServerResponse>)
       });
     });
   }
 
+  /**
+   * Adds new middleware to fastify instance
+   * @param {Route[] | Route} route
+   * @param {Middleware} handler
+   */
   addUse(route: Route[] | Route, handler: Middleware) {
-    const routes = Array.isArray(route)? route.map(route => route.toString()) : [route.toString()];
+    const routes = Array.isArray(route) ? route.map(route => route.toString()) : [route.toString()];
 
     routes.forEach(route => {
-      this.app.use(route, handler);
+      this.app.use(route, handler as Middleware);
     });
   }
+
+  /**
+   * Decorates fastify reply with chunk
+   * @description Fastify doesn't support chunks by default, we use native http response to achieve.
+   */
+  // private decorateChunk(){
+  //   // noinspection TsLint
+  //   this.app.decorateReply('chunk', function (this: Reply, str: string) {
+  //     this.res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  //     this.res.setHeader('transfer-encoding', 'chunked');
+  //     this.res.write(str);
+  //   });
+  // }
 }
 
 
@@ -56,19 +94,3 @@ export class Route {
     return this.path;
   }
 }
-
-
-// chunks draft
-// const server = new Server();
-// server.addRoute(new Route('test'), HTTP_METHODS.GET, (req, res) => {
-//   res.res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-//   res.res.setHeader('transfer-encoding', 'chunked');
-//   res.res.write('<div>tesasdfasdjk fj klasdjfkl akjls dfjk lasjkldfj klasdj flajklsdf jklasdjkl f ajklsdfjk lajklsdf jlajsldj klfgjklasjk ldfj kljk lasdjklfjlajlksdj lfj klajlsdjlfjlasjldjlfjklasjldf jkljlasjldfjl t</div>');
-//
-//   setTimeout(() => {
-//     res.res.write('<div>Doneing</div>');
-//     res.res.end();
-//   }, 1500);
-// });
-// console.log(server.app.printRoutes());
-// server.app.listen(8080);

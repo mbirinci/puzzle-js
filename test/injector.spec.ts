@@ -138,4 +138,45 @@ describe('Injector', () => {
     //Assert
     expect(Test.config).to.eq(randomConfig);
   });
+
+  it('should give previously generated instance', () => {
+    //Arrange
+    @Injectable
+    class Test{}
+
+    //Act
+    const instance = Injector.get(Test);
+    const anotherInstance = Injector.get(Test);
+
+    //Assert
+    expect(instance).to.eq(anotherInstance);
+  });
+
+  it('should inject previously generated instance', () => {
+    //Arrange
+    const instances: Test[] = [];
+    @Injectable
+    class Test{}
+
+    //Act
+    @Injectable
+    class Test2 {
+      constructor(test: Test){
+        instances.push(test);
+      }
+    }
+    @Injectable
+    class Test3 {
+      constructor(test: Test){
+        instances.push(test);
+      }
+    }
+
+    Injector.get(Test2);
+    Injector.get(Test3);
+
+    //Assert
+    expect(instances[0]).to.eq(instances[1]);
+    expect(instances[0]).to.be.instanceof(Test);
+  });
 });

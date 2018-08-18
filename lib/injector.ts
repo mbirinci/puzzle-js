@@ -59,12 +59,10 @@ export class Injector {
       throw new PuzzleError(ERROR_CODES.CLASS_NOT_REGISTERED_AS_INJECTABLE, constructor.name);
     }
 
-    let instance;
     if(!injectionToken.instance){
-      instance = Object.assign(injectionToken.instance || new injectionToken.constructor(...Injector.getInjectionParameters(injectionToken.constructor)), {config: injectionToken.config});
+      injectionToken.instance = Object.assign(injectionToken.instance || new injectionToken.constructor(...Injector.getInjectionParameters(injectionToken.constructor)), {config: injectionToken.config});
     }
 
-    injectionToken.instance = instance;
     return injectionToken.instance;
   }
 
@@ -91,12 +89,10 @@ export class Injector {
       throw new PuzzleError(ERROR_CODES.CLASS_NOT_REGISTERED_AS_INJECTABLE, constructor.name);
     }
 
-    let instance;
     if(!injectionToken.instance){
-      instance = Object.assign(injectionToken.instance || new injectionToken.constructor(...Injector.getInjectionParameters(injectionToken.constructor)), {config: injectionToken.config});
+      injectionToken.instance = Object.assign(injectionToken.instance || new injectionToken.constructor(...Injector.getInjectionParameters(injectionToken.constructor)), {config: injectionToken.config});
     }
 
-    injectionToken.instance = instance;
     return injectionToken;
   }
 
