@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {ERROR_CODES, PuzzleError} from "./errors";
 // noinspection TsLint
-type Ctor<T> = new (...args: any[]) => T;
+export type Ctor<T> = new (...args: any[]) => T;
 
 type constructedInstance = {
   // noinspection TsLint
