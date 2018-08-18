@@ -7,6 +7,12 @@ export interface BootstrapConfig {
   storefront?: Array<Ctor<any>> | Ctor<any>;
 }
 
+/**
+ * Starts application
+ * @param {BootstrapConfig} config
+ * @returns {(constructor: any) => any}
+ * @constructor
+ */
 export function Bootstrap(config: BootstrapConfig) {
   return Injector.decorate((constructor: () => void) => {
     const gateways = (Array.isArray(config.gateway) ? config.gateway : (config.gateway ? [config.gateway] : []))

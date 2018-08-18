@@ -14,6 +14,12 @@ export interface PuzzleGatewayInterface {
   listen: () => void;
 }
 
+/**
+ * Decorates class as Gateway
+ * @param {GatewayConfig} config
+ * @returns {(constructor: any) => any}
+ * @constructor
+ */
 export function PuzzleGateway<T>(config: GatewayConfig) {
   return Injector.decorate((constructor: () => void) => {
     console.log(`Registering Gateway: ${constructor.name}`);
@@ -21,6 +27,10 @@ export function PuzzleGateway<T>(config: GatewayConfig) {
   }, config);
 }
 
+/**
+ * Gateway super class
+ * @constructor
+ */
 export class Gateway implements PuzzleGatewayInterface {
   config: GatewayConfig;
   server: Server = new Server();
@@ -34,6 +44,7 @@ export class Gateway implements PuzzleGatewayInterface {
       this.config = config;
     }
   }
+
 
   listen() {
     this.server.app.listen(this.config.port);

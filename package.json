@@ -16,7 +16,7 @@
     "typescript": "^3.0.1"
   },
   "scripts": {
-    "lint": "tslint -c tslint.json {test,src}/**",
+    "lint": "tslint -c tslint.json {test,lib}/**",
     "test": "nyc --check-coverage cross-env NODE_ENV=production mocha -r ts-node/register --recursive 'test/**/*.spec.ts'"
   },
   "devDependencies": {
