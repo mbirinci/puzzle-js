@@ -1,16 +1,17 @@
 {
 "extension": [
     ".ts",
-    ".tsx"
+    ".tsx",
+    ".spec.ts"
   ],
   "exclude": [
+    "dist/**",
     "**/*.d.ts",
     "test/**",
-    "dist/**",
-    "coverage/**",
-    "demo",
-    "lib/types",
-    "**/*.js"
+    "lib/index.ts"
+  ],
+  "include": [
+    "lib/**/*.ts"
   ],
   "reporter": [
     "text"
@@ -20,5 +21,9 @@
   "statements": 100,
   "functions": 100,
   "branches": 100,
-  "branches": 100
+  "branches": 100,
+  "all": true,
+  "require": [
+    "ts-node/register"
+  ]
 }

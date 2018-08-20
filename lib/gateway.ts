@@ -1,9 +1,18 @@
 import {Injector} from "./injector";
-import {Server} from "./server";
+import {Route, Server} from "./server";
 import {ERROR_CODES, PuzzleError} from "./errors";
+import {PuzzleApi} from "./api";
 
 export interface GatewayConfig {
   port: number;
+  api: {
+    routePrefix?: Route;
+    handlers: PuzzleApi[];
+  };
+  fragments: {
+    routePrefix?: Route;
+    handlers: any[]
+  };
 }
 
 export interface PuzzleGatewayInterface {
@@ -43,6 +52,8 @@ export class Gateway implements PuzzleGatewayInterface {
     } else {
       this.config = config;
     }
+
+    console.log(config.api.handlers[0]);
   }
 
 

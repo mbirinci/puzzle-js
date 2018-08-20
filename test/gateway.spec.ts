@@ -35,9 +35,7 @@ describe('Gateway', () => {
     //Arrange
     const port = faker.random.number();
     class TestGateway extends Gateway{
-      static config = {
-        port
-      };
+      static config = mockGatewayConfiguration({port});
     }
     const gateway = new TestGateway();
     const spy = sinon.stub(gateway.server.app, 'listen');
