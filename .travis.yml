@@ -7,5 +7,3 @@ deploy:
   email: "ahmetcanguven44@gmail.com"
   api_key: "c52779bc-fbe0-4fad-8bbe-c6c9b74fcea2"
   skip_cleanup: true
-env:
-  - NODE_ENV=production
