@@ -13,8 +13,14 @@ export interface BootstrapConfig {
  * @returns {(constructor: any) => any}
  * @constructor
  */
-export function Bootstrap(config: BootstrapConfig) {
+export function PuzzleApplication(config: BootstrapConfig) {
   return Injector.decorate((constructor: () => void) => {
+    Application.start(config);
+  }, config);
+}
+
+class Application {
+  static start(config: BootstrapConfig) {
     const gateways = (Array.isArray(config.gateway) ? config.gateway : (config.gateway ? [config.gateway] : []))
       .map(gateway => Injector.get(gateway) as Gateway);
     const storefronts = (Array.isArray(config.storefront) ? config.storefront : (config.storefront ? [config.storefront] : []))
@@ -27,5 +33,5 @@ export function Bootstrap(config: BootstrapConfig) {
     storefronts.forEach(storefront => {
       storefront.listen();
     });
-  }, config);
+  }
 }

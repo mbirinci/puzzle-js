@@ -1,13 +1,13 @@
-import {Injector} from "./injector";
+import {Ctor, Injector} from "./injector";
 import {Route, Server} from "./server";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import {PuzzleApi} from "./api";
+import {Api} from "./api";
 
 export interface GatewayConfig {
   port: number;
   api: {
     routePrefix?: Route;
-    handlers: PuzzleApi[];
+    handlers: Array<Ctor<Api>>;
   };
   fragments: {
     routePrefix?: Route;
@@ -15,8 +15,8 @@ export interface GatewayConfig {
   };
 }
 
-export interface PuzzleGatewayInterface {
-  OnCreate?: () => void;
+export interface GatewayEvents {
+  OnCreate: () => void;
   OnBeforeStart?: () => void;
   OnReady?: () => void;
   OnListen?: () => void;
@@ -40,7 +40,7 @@ export function PuzzleGateway<T>(config: GatewayConfig) {
  * Gateway super class
  * @constructor
  */
-export class Gateway implements PuzzleGatewayInterface {
+export class Gateway {
   config: GatewayConfig;
   server: Server = new Server();
 
@@ -52,8 +52,6 @@ export class Gateway implements PuzzleGatewayInterface {
     } else {
       this.config = config;
     }
-
-    console.log(config.api.handlers[0]);
   }
 
 

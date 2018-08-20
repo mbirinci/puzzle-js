@@ -3,7 +3,7 @@ import {ERROR_CODES, PuzzleError} from "./errors";
 import {Route} from "./server";
 
 
-export interface PuzzleApi {
+export interface ApiEvents {
 
 }
 
@@ -20,7 +20,7 @@ export function PuzzleApi<T>(config: ApiConfig) {
   }, config);
 }
 
-export class Api implements PuzzleApi {
+export class Api {
   config: ApiConfig;
 
   constructor() {

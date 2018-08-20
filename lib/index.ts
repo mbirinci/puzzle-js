@@ -1,5 +1,5 @@
 import {Gateway, PuzzleGateway} from "./gateway";
-import {Bootstrap} from "./core";
+import {PuzzleApplication} from "./application";
 import {Api, PuzzleApi} from "./api";
 import {Route} from "./server";
 
@@ -9,7 +9,7 @@ import {Route} from "./server";
   route: new Route('/')
 })
 class ProductApi extends Api {
-  constructor(){
+  constructor() {
     super();
 
 
@@ -19,7 +19,7 @@ class ProductApi extends Api {
 @PuzzleGateway({
   port: 8080,
   api: {
-    handlers: [PuzzleApi],
+    handlers: [ProductApi],
   },
   fragments: {
     handlers: []
@@ -51,8 +51,9 @@ class Search extends Gateway {
 }
 
 
-@Bootstrap({
+@PuzzleApplication({
   gateway: [Browsing, Search],
 })
 class Application {
+
 }
