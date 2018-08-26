@@ -1,7 +1,8 @@
 import {Gateway, PuzzleGateway} from "./gateway";
-import {PuzzleApplication} from "./application";
+import {Application, PuzzleApplication} from "./application";
 import {Api, PuzzleApi} from "./api";
 import {Route} from "./server";
+import {Injector} from "./injector";
 
 @PuzzleApi({
   name: 'product',
@@ -26,10 +27,8 @@ class ProductApi extends Api {
   }
 })
 class Browsing extends Gateway {
-  constructor() {
-    super();
-
-    console.log('Starting Browsing Gateway');
+  OnBeforeStart() {
+    console.log('Starting Search gateway');
   }
 }
 
@@ -43,10 +42,8 @@ class Browsing extends Gateway {
   }
 })
 class Search extends Gateway {
-  constructor() {
-    super();
-
-    console.log('Starting Search Gateway');
+  OnBeforeStart() {
+    console.log('Starting Search gateway');
   }
 }
 
@@ -54,6 +51,16 @@ class Search extends Gateway {
 @PuzzleApplication({
   gateway: [Browsing, Search],
 })
-class Application {
+class GatewayApplication extends Application {
+  superGlobal: number;
 
+  constructor() {
+    super();
+
+    this.superGlobal = Math.random();
+  }
+
+  OnBeforeStart() {
+    console.log('Starting Application');
+  }
 }

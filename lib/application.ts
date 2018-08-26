@@ -14,24 +14,46 @@ export interface BootstrapConfig {
  * @constructor
  */
 export function PuzzleApplication(config: BootstrapConfig) {
-  return Injector.decorate((constructor: () => void) => {
-    Application.start(config);
+  return Injector.decorate((constructor: new () => Application) => {
+    const application = new constructor();
+    application.init(config);
+    Injector.set(constructor, application);
+    application.start();
   }, config);
 }
 
-class Application {
-  static start(config: BootstrapConfig) {
-    const gateways = (Array.isArray(config.gateway) ? config.gateway : (config.gateway ? [config.gateway] : []))
-      .map(gateway => Injector.get(gateway) as Gateway);
-    const storefronts = (Array.isArray(config.storefront) ? config.storefront : (config.storefront ? [config.storefront] : []))
-      .map(storefront => Injector.get(storefront) as any);
 
-    gateways.forEach(gateway => {
+export class Application {
+  config!: BootstrapConfig;
+
+  init(config: BootstrapConfig) {
+    this.config = config;
+  }
+
+  async start() {
+    await this.OnBeforeStart();
+    this.startGateways();
+    this.startStorefronts();
+  }
+
+  private startGateways() {
+    const gateways = (Array.isArray(this.config.gateway) ? this.config.gateway : (this.config.gateway ? [this.config.gateway] : []))
+      .map(gateway => Injector.get(gateway)) as Gateway[];
+
+    gateways.forEach(async gateway => {
+      await gateway.OnBeforeStart();
       gateway.listen();
     });
+  }
+
+  private startStorefronts() {
+    const storefronts = (Array.isArray(this.config.storefront) ? this.config.storefront : (this.config.storefront ? [this.config.storefront] : []))
+      .map(storefront => Injector.get(storefront)) as any[];
 
     storefronts.forEach(storefront => {
       storefront.listen();
     });
   }
+
+  protected OnBeforeStart() {}
 }

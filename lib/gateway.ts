@@ -15,14 +15,6 @@ export interface GatewayConfig {
   };
 }
 
-export interface GatewayEvents {
-  OnCreate: () => void;
-  OnBeforeStart?: () => void;
-  OnReady?: () => void;
-  OnListen?: () => void;
-  listen: () => void;
-}
-
 /**
  * Decorates class as Gateway
  * @param {GatewayConfig} config
@@ -36,11 +28,19 @@ export function PuzzleGateway<T>(config: GatewayConfig) {
   }, config);
 }
 
+export interface GatewayBase {
+  OnCreate: () => void;
+  OnBeforeStart?: () => Promise<void> | void;
+  OnReady?: () => void;
+  OnListen?: () => void;
+  listen: () => void;
+}
+
 /**
- * Gateway super class
+ * Gateway base class
  * @constructor
  */
-export class Gateway {
+export class Gateway implements GatewayBase {
   config: GatewayConfig;
   server: Server = new Server();
 
@@ -58,4 +58,12 @@ export class Gateway {
   listen() {
     this.server.app.listen(this.config.port);
   }
+
+  OnBeforeStart() {}
+
+  OnCreate() {}
+
+  OnReady() {}
+
+  OnListen() {}
 }

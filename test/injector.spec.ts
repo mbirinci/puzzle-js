@@ -103,8 +103,9 @@ describe('Injector', () => {
     @Injectable
     class Test {
       nonInjected: NonInjected;
+
       constructor(nonInjected: NonInjected) {
-      this.nonInjected = nonInjected;
+        this.nonInjected = nonInjected;
       }
     }
 
@@ -132,7 +133,8 @@ describe('Injector', () => {
     }
 
     //Act
-    const configDecorator = Injector.decorate(() => {}, randomConfig);
+    const configDecorator = Injector.decorate(() => {
+    }, randomConfig);
     configDecorator(Test);
 
     //Assert
@@ -142,7 +144,8 @@ describe('Injector', () => {
   it('should give previously generated instance', () => {
     //Arrange
     @Injectable
-    class Test{}
+    class Test {
+    }
 
     //Act
     const instance = Injector.get(Test);
@@ -155,19 +158,22 @@ describe('Injector', () => {
   it('should inject previously generated instance', () => {
     //Arrange
     const instances: Test[] = [];
+
     @Injectable
-    class Test{}
+    class Test {
+    }
 
     //Act
     @Injectable
     class Test2 {
-      constructor(test: Test){
+      constructor(test: Test) {
         instances.push(test);
       }
     }
+
     @Injectable
     class Test3 {
-      constructor(test: Test){
+      constructor(test: Test) {
         instances.push(test);
       }
     }
@@ -178,5 +184,75 @@ describe('Injector', () => {
     //Assert
     expect(instances[0]).to.eq(instances[1]);
     expect(instances[0]).to.be.instanceof(Test);
+  });
+
+  it('should set custom instance for class when it is not set yet', () => {
+    //Arrange
+    class Test {
+    }
+
+    const customInstance = new Test();
+
+    //Act
+    Injector.set(Test, customInstance);
+
+    //Assert
+    const instance = Injector.get(Test);
+    expect(instance).to.eq(customInstance);
+  });
+
+  it('should set custom instance for class when it is already set', () => {
+    //Arrange
+    @Injectable
+    class Test {
+    }
+
+    const prevInstance = Injector.get(Test);
+    const customInstance = new Test();
+
+    //Act
+    Injector.set(Test, customInstance);
+
+    //Assert
+    const instance = Injector.get(Test);
+    expect(instance).to.eq(customInstance);
+    expect(instance).to.not.eq(prevInstance);
+  });
+
+  it('should transform class token to another token without breaking instance', () => {
+    //Arrange
+    @Injectable
+    class Test1 {
+    }
+
+    @Injectable
+    class Test2 {
+    }
+
+    //Act
+    const instance = Injector.get(Test1);
+    Injector.transform(Test1, Test2);
+    const instance2 = Injector.get(Test2);
+
+    //Assert
+    expect(instance).to.eq(instance2);
+  });
+
+  it('should throw error when target token does not exist', () => {
+    //Arrange
+    class NonInjectable {
+    }
+
+    @Injectable
+    class Test2 {
+    }
+
+    //Act
+    const test = () => {
+      Injector.transform(NonInjectable, Test2);
+    };
+
+    //Assert
+    expect(test).to.throw(PuzzleError, (new PuzzleError(ERROR_CODES.CLASS_NOT_REGISTERED_AS_INJECTABLE, NonInjectable.name)).message);
   });
 });

@@ -16,6 +16,7 @@
     "typescript": "^3.0.1"
   },
   "scripts": {
+    "build": "tsc",
     "lint": "tslint -c tslint.json {test,lib}/**",
     "test:dev": "nyc --check-coverage cross-env NODE_ENV=production mocha test/**/*.spec.ts",
     "test": "nyc --check-coverage cross-env NODE_ENV=production mocha test/**/*.spec.ts; nyc report --reporter=text-lcov | coveralls"
