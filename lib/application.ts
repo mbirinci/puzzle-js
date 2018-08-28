@@ -33,27 +33,29 @@ export class Application {
   async start() {
     await this.OnBeforeStart();
     this.startGateways();
-    this.startStorefronts();
+    //this.startStorefronts();
   }
 
   private startGateways() {
-    const gateways = (Array.isArray(this.config.gateway) ? this.config.gateway : (this.config.gateway ? [this.config.gateway] : []))
+    const gateways = (this.config.gateway ?
+      (Array.isArray(this.config.gateway) ? this.config.gateway : [this.config.gateway]): [])
       .map(gateway => Injector.get(gateway)) as Gateway[];
 
     gateways.forEach(async gateway => {
       await gateway.OnBeforeStart();
-      gateway.listen();
+      gateway.start();
     });
   }
 
-  private startStorefronts() {
-    const storefronts = (Array.isArray(this.config.storefront) ? this.config.storefront : (this.config.storefront ? [this.config.storefront] : []))
-      .map(storefront => Injector.get(storefront)) as any[];
+  // private startStorefronts() {
+  //   const storefronts = (Array.isArray(this.config.storefront) ? this.config.storefront : (this.config.storefront ? [this.config.storefront] : []))
+  //     .map(storefront => Injector.get(storefront)) as any[];
+  //
+  //   storefronts.forEach(storefront => {
+  //     storefront.listen();
+  //   });
+  // }
 
-    storefronts.forEach(storefront => {
-      storefront.listen();
-    });
+  protected OnBeforeStart() {
   }
-
-  protected OnBeforeStart() {}
 }

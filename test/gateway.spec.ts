@@ -5,7 +5,16 @@ import * as faker from "faker";
 import sinon from "sinon";
 import {ERROR_CODES, PuzzleError} from "../lib/errors";
 
+let sandbox: sinon.SinonSandbox;
+
 describe('Gateway', () => {
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+  });
+  afterEach(() => {
+    sandbox.restore();
+  });
+
   it('should throw error when trying to create Gateway without decoration', () => {
     //Arrange
     const test = () => {
@@ -31,19 +40,46 @@ describe('Gateway', () => {
     expect((Test as any).config.port).to.eq(port);
   });
 
-  it('should call server listen', () => {
+  it('should call server listen on start', async () => {
     //Arrange
     const port = faker.random.number();
-    class TestGateway extends Gateway{
+
+    class TestGateway extends Gateway {
       static config = mockGatewayConfiguration({port});
     }
+
     const gateway = new TestGateway();
-    const spy = sinon.stub(gateway.server.app, 'listen');
+    const spy = sandbox.stub(gateway.server.app, 'listen');
     //Act
-    gateway.listen();
+    await gateway.start();
 
     //Assert
     expect(spy.calledOnce).to.eq(true);
     expect(spy.calledWithExactly(port)).to.eq(true);
+  });
+
+  it('should call OnBeforeStart before starting to listen', async () => {
+    //Arrange
+    const port = faker.random.number();
+
+    class TestGateway extends Gateway {
+      static config = mockGatewayConfiguration({port});
+
+      OnBeforeStart(){}
+
+      OnListen(){}
+    }
+
+    const gateway = new TestGateway();
+    const spy = sandbox.stub(gateway.server.app, 'listen');
+    const spyOnBeforeStart = sandbox.stub(gateway, 'OnBeforeStart');
+    const spyOnListen = sandbox.stub(gateway, 'OnListen');
+    //Act
+    await gateway.start();
+
+    //Assert
+    expect(spyOnBeforeStart.calledBefore(spy)).to.eq(true);
+    expect(spy.calledOnce).to.eq(true);
+    expect(spyOnListen.calledAfter(spy)).to.eq(true);
   });
 });

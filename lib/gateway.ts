@@ -29,11 +29,8 @@ export function PuzzleGateway<T>(config: GatewayConfig) {
 }
 
 export interface GatewayBase {
-  OnCreate: () => void;
   OnBeforeStart?: () => Promise<void> | void;
-  OnReady?: () => void;
   OnListen?: () => void;
-  listen: () => void;
 }
 
 /**
@@ -54,16 +51,21 @@ export class Gateway implements GatewayBase {
     }
   }
 
+  async start() {
+    await this.OnBeforeStart();
 
-  listen() {
-    this.server.app.listen(this.config.port);
+    this.listen();
+
+    this.OnListen();
   }
 
-  OnBeforeStart() {}
+  OnBeforeStart() {
+  }
 
-  OnCreate() {}
+  OnListen() {
+  }
 
-  OnReady() {}
-
-  OnListen() {}
+  private listen() {
+    this.server.app.listen(this.config.port);
+  }
 }

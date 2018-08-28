@@ -2,7 +2,6 @@ import {Gateway, PuzzleGateway} from "./gateway";
 import {Application, PuzzleApplication} from "./application";
 import {Api, PuzzleApi} from "./api";
 import {Route} from "./server";
-import {Injector} from "./injector";
 
 @PuzzleApi({
   name: 'product',
@@ -12,7 +11,6 @@ import {Injector} from "./injector";
 class ProductApi extends Api {
   constructor() {
     super();
-
 
   }
 }
