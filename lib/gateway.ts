@@ -1,5 +1,5 @@
 import {Ctor, Injector} from "./injector";
-import {HTTP_METHODS, Route, Server} from "./server";
+import {DecoratorRoute, HTTP_METHODS, Route, Server} from "./server";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import {Api} from "./api";
 
@@ -32,6 +32,7 @@ export function PuzzleGateway<T>(config: GatewayConfig) {
 export interface GatewayBase {
   OnBeforeStart?: () => Promise<void> | void;
   OnListen?: () => void;
+  decoratorRoutes?: DecoratorRoute[];
 }
 
 /**
@@ -55,6 +56,10 @@ export class Gateway implements GatewayBase {
   async start() {
     this.healthCheckConfiguration();
 
+    if (this.constructor.prototype.decoratorRoutes) {
+      this.addDecoratedRoutes();
+    }
+
     await this.OnBeforeStart();
 
     this.listen();
@@ -66,6 +71,12 @@ export class Gateway implements GatewayBase {
   }
 
   OnListen() {
+  }
+
+  private addDecoratedRoutes() {
+    this.constructor.prototype.decoratorRoutes.forEach((decoratedRoute: DecoratorRoute) => {
+      this.server.addRoute(decoratedRoute.routes, decoratedRoute.method, decoratedRoute.handler, decoratedRoute.schema);
+    });
   }
 
   private healthCheckConfiguration() {

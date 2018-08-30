@@ -34,7 +34,8 @@ describe('Gateway', () => {
 
     //Act
     @PuzzleGateway(mockGatewayConfiguration({port}))
-    class Test {}
+    class Test {
+    }
 
     //Assert
     expect(Test).to.haveOwnProperty('config');
@@ -66,9 +67,11 @@ describe('Gateway', () => {
     class TestGateway extends Gateway {
       static config = mockGatewayConfiguration({port});
 
-      OnBeforeStart(){}
+      OnBeforeStart() {
+      }
 
-      OnListen(){}
+      OnListen() {
+      }
     }
 
     const gateway = new TestGateway();
@@ -129,7 +132,7 @@ describe('Gateway', () => {
     expect(healthCheckRouteSpy.calledWithExactly(endpoint, HTTP_METHODS.GET, sinon.match.any, sinon.match.any)).to.not.eq(true);
   });
 
-  it('should reply healthcheeck with', async () => {
+  it('should reply healthcheck with health model', async () => {
     //Arrange
     const port = faker.random.number();
     const endpoint = new Route(faker.random.word());
@@ -149,7 +152,8 @@ describe('Gateway', () => {
     await gateway.start();
     const handler = healthCheckRouteSpy.args[0][2];
     const reply = {
-      send: () => {}
+      send: () => {
+      }
     };
     const spy = sinon.spy(reply, 'send');
     handler(null, reply);
@@ -158,5 +162,39 @@ describe('Gateway', () => {
     expect(spy.calledWithMatch({
       ts: sinon.match.number
     })).to.eq(true);
+  });
+
+  it('should add decorated routes if there is any', () => {
+    //Arrange
+    const port = faker.random.number();
+    const routes = new Route(faker.random.word());
+    const method = faker.random.arrayElement(Object.values(HTTP_METHODS));
+    const handler = () => {
+    };
+
+    class TestGateway extends Gateway {
+      static config = mockGatewayConfiguration({
+        port,
+      });
+    }
+
+    const gateway = new TestGateway();
+    sandbox.stub(gateway.server.app, 'listen');
+
+    const decoratedRoute = {
+      routes,
+      method,
+      handler,
+      schema: {}
+    };
+
+    const spy = sandbox.stub(gateway.server, 'addRoute');
+
+    //Act
+    gateway.constructor.prototype.decoratorRoutes = [decoratedRoute];
+    gateway.start();
+
+    //Assert
+    expect(spy.calledWithExactly(decoratedRoute.routes, decoratedRoute.method, decoratedRoute.handler, decoratedRoute.schema)).to.eq(true);
   });
 });

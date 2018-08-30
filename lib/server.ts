@@ -1,6 +1,7 @@
 import {Injectable} from "./injector";
 import fastify, {FastifyReply, FastifyRequest, JSONSchema, RequestHandler} from "fastify";
 import {IncomingMessage, ServerResponse} from "http";
+import {Gateway} from "./gateway";
 
 
 export interface Reply extends FastifyReply<ServerResponse> {
@@ -11,15 +12,26 @@ export interface Request extends FastifyRequest<IncomingMessage> {
 
 }
 
+export interface ReplyDescriptor extends PropertyDescriptor {
+  value: Handler;
+}
+
+export interface DecoratorRoute {
+  routes: Route[];
+  method: HTTP_METHODS;
+  handler: Handler;
+  schema?: JsonSchema;
+}
+
 export type Middleware = (req: IncomingMessage, reply: ServerResponse, next: Function) => void;
 export type Handler = (req: Request, reply: Reply) => void;
-
 
 export enum HTTP_METHODS {
   GET = 'GET',
   POST = 'POST',
   PUT = 'PUT',
-  HEAD = 'HEAD'
+  HEAD = 'HEAD',
+  DELETE = 'DELETE'
 }
 
 export interface JsonChild {
@@ -57,6 +69,36 @@ export interface JsonSchema {
     required?: string[];
   };
 }
+
+/**
+ * Generates decorator to bind route to method
+ * @param {HTTP_METHODS} method
+ * @returns {(routes: (Route[] | Route), schema?: JsonSchema) => <T extends Gateway>(target: T, propertyKey: string, descriptor: PropertyDescriptor) => ReplyDescriptor}
+ */
+const decoratedRouteGenerator = (method: HTTP_METHODS) => (routes: Route[] | Route, schema?: JsonSchema) => {
+  return <T extends Gateway>(target: T, propertyKey: string, descriptor: PropertyDescriptor) => {
+    const decoratedHandler = {
+      routes,
+      method,
+      handler: descriptor.value,
+      schema
+    };
+
+    if (target.constructor.prototype.decoratorRoutes) {
+      target.constructor.prototype.decoratorRoutes.push(decoratedHandler);
+    } else {
+      target.constructor.prototype.decoratorRoutes = [decoratedHandler];
+    }
+
+    return descriptor as ReplyDescriptor;
+  };
+};
+
+export const get = decoratedRouteGenerator(HTTP_METHODS.GET);
+export const post = decoratedRouteGenerator(HTTP_METHODS.POST);
+export const head = decoratedRouteGenerator(HTTP_METHODS.HEAD);
+export const put = decoratedRouteGenerator(HTTP_METHODS.PUT);
+export const del = decoratedRouteGenerator(HTTP_METHODS.DELETE);
 
 @Injectable
 export class Server {

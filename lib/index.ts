@@ -1,7 +1,7 @@
 import {Gateway, PuzzleGateway} from "./gateway";
 import {Application, PuzzleApplication} from "./application";
 import {Api, PuzzleApi} from "./api";
-import {Route} from "./server";
+import {get, Reply, Request, Route} from "./server";
 
 @PuzzleApi({
   name: 'product',
@@ -28,6 +28,13 @@ class ProductApi extends Api {
 class Browsing extends Gateway {
   OnBeforeStart() {
     console.log('Starting Search gateway');
+  }
+
+  @get(new Route('/globalEndpoint'))
+  ge(req: Request, reply: Reply){
+    reply.send({
+      ts: Date.now()
+    });
   }
 }
 

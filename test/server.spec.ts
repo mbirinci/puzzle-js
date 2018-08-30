@@ -1,9 +1,10 @@
-import {HTTP_METHODS, Route, Server} from "../lib/server";
+import {del, get, head, HTTP_METHODS, post, put, Route, Server} from "../lib/server";
 import sinon from "sinon";
 import {expect} from "chai";
 import {IncomingMessage, ServerResponse} from "http";
 import {FastifyReply, FastifyRequest} from "fastify";
 import * as faker from "faker";
+import {Gateway} from "../lib/gateway";
 
 describe('Route', () => {
   it('should append / to route path if not exists', () => {
@@ -139,5 +140,110 @@ describe('Server', () => {
     expect(spy.calledTwice).to.eq(true);
     expect(spy.calledWithExactly(route.toString(), handler)).to.eq(true);
     expect(spy.calledWithExactly(route2.toString(), handler)).to.eq(true);
+  });
+
+  it('should generate get decorator', () => {
+    //Arrange
+    const handler = () => {};
+    const targetInstance = {} as Gateway;
+    const routes = new Route('/');
+    const descriptor = {
+      value: handler
+    };
+
+    //Act
+    const newDescriptor = get(routes)(targetInstance, 'method', descriptor);
+
+    //Assert
+    expect(targetInstance.constructor.prototype.decoratorRoutes).to.deep.include({
+      routes,
+      method: HTTP_METHODS.GET,
+      handler,
+      schema: undefined
+    });
+  });
+
+  it('should generate post decorator', () => {
+    //Arrange
+    const handler = () => {};
+    const targetInstance = {} as Gateway;
+    const routes = new Route('/');
+    const descriptor = {
+      value: handler
+    };
+
+    //Act
+    const newDescriptor = post(routes)(targetInstance, 'method', descriptor);
+
+    //Assert
+    expect(targetInstance.constructor.prototype.decoratorRoutes).to.deep.include({
+      routes,
+      method: HTTP_METHODS.POST,
+      handler,
+      schema: undefined
+    });
+  });
+
+  it('should generate put decorator', () => {
+    //Arrange
+    const handler = () => {};
+    const targetInstance = {} as Gateway;
+    const routes = new Route('/');
+    const descriptor = {
+      value: handler
+    };
+
+    //Act
+    const newDescriptor = put(routes)(targetInstance, 'method', descriptor);
+
+    //Assert
+    expect(targetInstance.constructor.prototype.decoratorRoutes).to.deep.include({
+      routes,
+      method: HTTP_METHODS.PUT,
+      handler,
+      schema: undefined
+    });
+  });
+
+  it('should generate delete decorator', () => {
+    //Arrange
+    const handler = () => {};
+    const targetInstance = {} as Gateway;
+    const routes = new Route('/');
+    const descriptor = {
+      value: handler
+    };
+
+    //Act
+    const newDescriptor = del(routes)(targetInstance, 'method', descriptor);
+
+    //Assert
+    expect(targetInstance.constructor.prototype.decoratorRoutes).to.deep.include({
+      routes,
+      method: HTTP_METHODS.DELETE,
+      handler,
+      schema: undefined
+    });
+  });
+
+  it('should generate head decorator', () => {
+    //Arrange
+    const handler = () => {};
+    const targetInstance = {} as Gateway;
+    const routes = new Route('/');
+    const descriptor = {
+      value: handler
+    };
+
+    //Act
+    head(routes)(targetInstance, 'method', descriptor);
+
+    //Assert
+    expect(targetInstance.constructor.prototype.decoratorRoutes).to.deep.include({
+      routes,
+      method: HTTP_METHODS.HEAD,
+      handler,
+      schema: undefined
+    });
   });
 });
