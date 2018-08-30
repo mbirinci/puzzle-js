@@ -1,6 +1,6 @@
 import {Injector} from "./injector";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import {Route} from "./server";
+import {DecoratorRoute, Route} from "./server";
 
 
 export interface ApiEvents {
@@ -8,9 +8,11 @@ export interface ApiEvents {
 }
 
 export interface ApiConfig {
-  name: string;
-  endpoints: any[];
   route: Route;
+}
+
+interface ApiBase {
+  decoratorRoutes: DecoratorRoute[];
 }
 
 export function PuzzleApi<T>(config: ApiConfig) {
@@ -20,8 +22,9 @@ export function PuzzleApi<T>(config: ApiConfig) {
   }, config);
 }
 
-export class Api {
+export class Api implements ApiBase {
   config: ApiConfig;
+  decoratorRoutes: DecoratorRoute[] = [];
 
   constructor() {
     const config = (this.constructor as any).config as ApiConfig;

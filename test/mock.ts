@@ -1,12 +1,16 @@
 import {GatewayConfig} from "../lib/gateway";
 import * as faker from "faker";
 import {Route} from "../lib/server";
-import {ApiConfig} from "../lib/api";
+import {Api, ApiConfig} from "../lib/api";
+import {Ctor} from "../lib/injector";
 
-export const mockGatewayConfiguration = (config: {port?: number, healthCheck?: Route}) : GatewayConfig => {
+export const mockGatewayConfiguration = (config: {port?: number, healthCheck?: Route, api?: {
+    routePrefix?: Route;
+    handlers: Array<Ctor<Api>>;
+  }}) : GatewayConfig => {
   return {
     port: config.port || faker.random.number(),
-    api: {
+    api: config.api || {
       handlers: []
     },
     fragments: {
@@ -16,10 +20,8 @@ export const mockGatewayConfiguration = (config: {port?: number, healthCheck?: R
   };
 };
 
-export const mockApiConfiguration = (config: {name?: string, route?: Route}) : ApiConfig => {
+export const mockApiConfiguration = (config: {route?: Route}) : ApiConfig => {
   return {
-    endpoints: [],
-    name: config.name || faker.random.word(),
     route: config.route || new Route(faker.random.word())
   };
 };

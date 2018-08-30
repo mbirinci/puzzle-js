@@ -73,7 +73,7 @@ export class Gateway implements GatewayBase {
   }
 
   OnListen() {
-    console.log(this.server.app.printRoutes());
+
   }
 
   private addDecoratedRoutes() {
@@ -85,14 +85,15 @@ export class Gateway implements GatewayBase {
   private addApiRoutes() {
     this.config.api.handlers.forEach(handler => {
       const handlerInstance = new handler();
+      if (handler.prototype.decoratorRoutes) {
+        (handler.prototype.decoratorRoutes).forEach((decoratedRoute: DecoratorRoute) => {
+          const routes = Array.isArray(decoratedRoute.routes) ? decoratedRoute.routes : [decoratedRoute.routes];
 
-      handler.prototype.decoratorRoutes.forEach((decoratedRoute: DecoratorRoute) => {
-        const routes = Array.isArray(decoratedRoute.routes) ? decoratedRoute.routes : [decoratedRoute.routes];
-
-        this.server.addRoute(routes.map(route => {
-          return handlerInstance.config.route.prepend(this.config.api.routePrefix).append(route);
-        }), decoratedRoute.method, decoratedRoute.handler.bind(handlerInstance), decoratedRoute.schema);
-      });
+          this.server.addRoute(routes.map(route => {
+            return handlerInstance.config.route.prepend(this.config.api.routePrefix).append(route);
+          }), decoratedRoute.method, decoratedRoute.handler.bind(handlerInstance), decoratedRoute.schema);
+        });
+      }
     });
   }
 

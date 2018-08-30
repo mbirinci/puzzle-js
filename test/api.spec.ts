@@ -25,18 +25,18 @@ describe('Api', () => {
     const name = faker.random.word();
 
     //Act
-    @PuzzleApi(mockApiConfiguration({name}))
+    @PuzzleApi(mockApiConfiguration({}))
     class Test {}
 
     //Assert
     expect(Test).to.haveOwnProperty('config');
-    expect((Test as any).config.name).to.eq(name);
+    expect((Test as any).config).to.be.an('object');
   });
 
   it('should set super config', () => {
     //Arrange
     const name = faker.random.word();
-    const mockConfig = mockApiConfiguration({name});
+    const mockConfig = mockApiConfiguration({});
     class TestApi extends Api{
       static config = mockConfig;
     }
@@ -45,6 +45,6 @@ describe('Api', () => {
     const api = new TestApi();
 
     //Assert
-    expect(api.config).to.eq(mockConfig);
+    expect(api.config).to.eq(mockConfig );
   });
 });

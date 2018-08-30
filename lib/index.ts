@@ -4,19 +4,18 @@ import {Api, PuzzleApi} from "./api";
 import {get, Reply, Request, Route} from "./server";
 
 @PuzzleApi({
-  name: 'product',
-  endpoints: [],
   route: new Route('/product')
 })
 class ProductApi extends Api {
   rand: number;
-  constructor(){
+
+  constructor() {
     super();
     this.rand = Math.random();
   }
 
   @get(new Route('/'))
-  getProducts(req: Request, reply: Reply){
+  getProducts(req: Request, reply: Reply) {
     reply.send({
       ts: this.rand
     });
@@ -36,7 +35,8 @@ class ProductApi extends Api {
 })
 class Browsing extends Gateway {
   rand: number;
-  constructor(){
+
+  constructor() {
     super();
     this.rand = Math.random();
   }
@@ -46,7 +46,7 @@ class Browsing extends Gateway {
   }
 
   @get(new Route('/globalEndpoint'))
-  ge(req: Request, reply: Reply){
+  ge(req: Request, reply: Reply) {
     reply.send({
       ts: this.rand
     });

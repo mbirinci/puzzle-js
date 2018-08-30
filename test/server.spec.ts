@@ -64,6 +64,7 @@ describe('Route', () => {
     //Arrange
     const endpoint = faker.random.word();
     const route = new Route(`/${endpoint}`);
+
     //Act
     const resultingRoute = route.prepend(undefined);
 
