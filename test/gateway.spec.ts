@@ -4,6 +4,7 @@ import {mockGatewayConfiguration} from "./mock";
 import * as faker from "faker";
 import sinon from "sinon";
 import {ERROR_CODES, PuzzleError} from "../lib/errors";
+import {HTTP_METHODS, Route} from "../lib/server";
 
 let sandbox: sinon.SinonSandbox;
 
@@ -81,5 +82,81 @@ describe('Gateway', () => {
     expect(spyOnBeforeStart.calledBefore(spy)).to.eq(true);
     expect(spy.calledOnce).to.eq(true);
     expect(spyOnListen.calledAfter(spy)).to.eq(true);
+  });
+
+  it('should try to add healthCheckRoute if route provided', async () => {
+    //Arrange
+    const port = faker.random.number();
+    const endpoint = new Route(faker.random.word());
+
+    class TestGateway extends Gateway {
+      static config = mockGatewayConfiguration({
+        port,
+        healthCheck: endpoint
+      });
+    }
+
+    const gateway = new TestGateway();
+    const spy = sandbox.stub(gateway.server.app, 'listen');
+    const healthCheckRouteSpy = sandbox.spy(gateway.server, 'addRoute');
+    //Act
+    await gateway.start();
+
+    //Assert
+    expect(healthCheckRouteSpy.calledBefore(spy)).to.eq(true);
+    expect(healthCheckRouteSpy.calledWithExactly(endpoint, HTTP_METHODS.GET, sinon.match.any, sinon.match.any)).to.eq(true);
+    expect(spy.calledOnce).to.eq(true);
+  });
+
+  it('should not add healthCheck endpoint if route is not provided', async () => {
+    //Arrange
+    const port = faker.random.number();
+    const endpoint = new Route(faker.random.word());
+
+    class TestGateway extends Gateway {
+      static config = mockGatewayConfiguration({
+        port,
+      });
+    }
+
+    const gateway = new TestGateway();
+    sandbox.stub(gateway.server.app, 'listen');
+    const healthCheckRouteSpy = sandbox.spy(gateway.server, 'addRoute');
+    //Act
+    await gateway.start();
+
+    //Assert
+    expect(healthCheckRouteSpy.calledWithExactly(endpoint, HTTP_METHODS.GET, sinon.match.any, sinon.match.any)).to.not.eq(true);
+  });
+
+  it('should reply healthcheeck with', async () => {
+    //Arrange
+    const port = faker.random.number();
+    const endpoint = new Route(faker.random.word());
+
+    class TestGateway extends Gateway {
+      static config = mockGatewayConfiguration({
+        port,
+        healthCheck: endpoint
+      });
+    }
+
+    const gateway = new TestGateway();
+    sandbox.stub(gateway.server.app, 'listen');
+    const healthCheckRouteSpy = sandbox.stub(gateway.server, 'addRoute');
+
+    //Act
+    await gateway.start();
+    const handler = healthCheckRouteSpy.args[0][2];
+    const reply = {
+      send: () => {}
+    };
+    const spy = sinon.spy(reply, 'send');
+    handler(null, reply);
+
+    //Assert
+    expect(spy.calledWithMatch({
+      ts: sinon.match.number
+    })).to.eq(true);
   });
 });

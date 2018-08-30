@@ -22,7 +22,8 @@ class ProductApi extends Api {
   },
   fragments: {
     handlers: []
-  }
+  },
+  healthCheck: new Route('/healthcheck')
 })
 class Browsing extends Gateway {
   OnBeforeStart() {

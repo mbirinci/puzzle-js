@@ -1,5 +1,5 @@
 import {Ctor, Injector} from "./injector";
-import {Route, Server} from "./server";
+import {HTTP_METHODS, Route, Server} from "./server";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import {Api} from "./api";
 
@@ -11,8 +11,9 @@ export interface GatewayConfig {
   };
   fragments: {
     routePrefix?: Route;
-    handlers: any[]
+    handlers: any[];
   };
+  healthCheck?: Route;
 }
 
 /**
@@ -52,6 +53,8 @@ export class Gateway implements GatewayBase {
   }
 
   async start() {
+    this.healthCheckConfiguration();
+
     await this.OnBeforeStart();
 
     this.listen();
@@ -63,6 +66,27 @@ export class Gateway implements GatewayBase {
   }
 
   OnListen() {
+  }
+
+  private healthCheckConfiguration() {
+    if (!this.config.healthCheck) return;
+
+    this.server.addRoute(this.config.healthCheck, HTTP_METHODS.GET, (req, reply) => {
+      reply.send({
+        ts: Date.now()
+      });
+    }, {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            ts: {
+              type: 'number'
+            }
+          }
+        }
+      }
+    });
   }
 
   private listen() {

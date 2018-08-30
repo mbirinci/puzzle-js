@@ -1,5 +1,5 @@
 import {Injectable} from "./injector";
-import fastify, {FastifyReply, FastifyRequest, RequestHandler, RouteSchema} from "fastify";
+import fastify, {FastifyReply, FastifyRequest, JSONSchema, RequestHandler} from "fastify";
 import {IncomingMessage, ServerResponse} from "http";
 
 
@@ -22,6 +22,42 @@ export enum HTTP_METHODS {
   HEAD = 'HEAD'
 }
 
+export interface JsonChild {
+  [key: string]: {
+    type: string;
+    properties?: JsonChild
+  };
+}
+
+export interface JsonSchema {
+  response?: {
+    [statusCode: number]: {
+      type: string;
+      properties?: JsonChild;
+    };
+  };
+  body?: {
+    type: 'object',
+    properties: JsonChild
+    required?: string[];
+  };
+  querystring?: {
+    type: 'object',
+    properties: JsonChild
+    required?: string[];
+  };
+  params?: {
+    type: 'object',
+    properties: JsonChild
+    required?: string[];
+  };
+  headers?: {
+    type: 'object',
+    properties: JsonChild
+    required?: string[];
+  };
+}
+
 @Injectable
 export class Server {
   app: fastify.FastifyInstance;
@@ -41,15 +77,15 @@ export class Server {
    * @param {Handler} handler
    * @param {fastify.RouteSchema} schema
    */
-  addRoute(route: Route[] | Route, method: HTTP_METHODS, handler: Handler, schema?: RouteSchema) {
+  addRoute(route: Route[] | Route, method: HTTP_METHODS, handler: Handler, schema?: JsonSchema) {
     const routes = Array.isArray(route) ? route.map(route => route.toString()) : [route.toString()];
 
     routes.forEach(route => {
       this.app.route({
         method,
         url: route,
-        ...schema ? {schema} : {},
-        handler: (handler as RequestHandler<IncomingMessage, ServerResponse>)
+        ...schema ? {schema: schema as JSONSchema} : {},
+        handler: (handler as RequestHandler<IncomingMessage, ServerResponse>),
       });
     });
   }

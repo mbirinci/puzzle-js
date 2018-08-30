@@ -3,7 +3,7 @@ import * as faker from "faker";
 import {Route} from "../lib/server";
 import {ApiConfig} from "../lib/api";
 
-export const mockGatewayConfiguration = (config: {port?: number}) : GatewayConfig => {
+export const mockGatewayConfiguration = (config: {port?: number, healthCheck?: Route}) : GatewayConfig => {
   return {
     port: config.port || faker.random.number(),
     api: {
@@ -11,7 +11,8 @@ export const mockGatewayConfiguration = (config: {port?: number}) : GatewayConfi
     },
     fragments: {
       handlers: []
-    }
+    },
+    healthCheck: config.healthCheck || undefined
   };
 };
 
