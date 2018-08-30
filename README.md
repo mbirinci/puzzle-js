@@ -7,7 +7,7 @@ Front-end microservices framework for scalable and blazing fast websites.
 
 [![Build Status](https://travis-ci.com/puzzle-js/PuzzleJs.svg?branch=master)](https://travis-ci.com/puzzle-js/PuzzleJs)
 [![npm version](https://badge.fury.io/js/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends)
-[![Coverage Status](https://coveralls.io/repos/github/puzzle-js/PuzzleJs/badge.svg?branch=v4)](https://coveralls.io/github/puzzle-js/PuzzleJs?branch=v4)
+[![Coverage Status](https://coveralls.io/repos/github/puzzle-js/PuzzleJs/badge.svg?branch=v4&t=1)](https://coveralls.io/github/puzzle-js/PuzzleJs?branch=v4)
 
 ## *New documentation and demo is under development*
 
