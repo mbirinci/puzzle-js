@@ -2,6 +2,7 @@ import {Injectable} from "./injector";
 import fastify, {FastifyReply, FastifyRequest, JSONSchema, RequestHandler} from "fastify";
 import {IncomingMessage, ServerResponse} from "http";
 import {Gateway} from "./gateway";
+import {Api} from "./api";
 
 
 export interface Reply extends FastifyReply<ServerResponse> {
@@ -76,7 +77,7 @@ export interface JsonSchema {
  * @returns {(routes: (Route[] | Route), schema?: JsonSchema) => <T extends Gateway>(target: T, propertyKey: string, descriptor: PropertyDescriptor) => ReplyDescriptor}
  */
 const decoratedRouteGenerator = (method: HTTP_METHODS) => (routes: Route[] | Route, schema?: JsonSchema) => {
-  return <T extends Gateway>(target: T, propertyKey: string, descriptor: PropertyDescriptor) => {
+  return <T extends Gateway | Api>(target: T, propertyKey: string, descriptor: PropertyDescriptor) => {
     const decoratedHandler = {
       routes,
       method,
@@ -166,6 +167,18 @@ export class Route {
 
   constructor(url: string) {
     this.path = url[0] === '/' ? url : `/${url}`;
+  }
+
+  append(route?: Route) {
+    if (!route) return new Route(this.path);
+
+    return new Route(this.path + route.toString());
+  }
+
+  prepend(route?: Route) {
+    if (!route) return new Route(this.path);
+
+    return new Route(route.toString() + this.path);
   }
 
   toString() {

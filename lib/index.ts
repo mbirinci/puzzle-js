@@ -6,12 +6,20 @@ import {get, Reply, Request, Route} from "./server";
 @PuzzleApi({
   name: 'product',
   endpoints: [],
-  route: new Route('/')
+  route: new Route('/product')
 })
 class ProductApi extends Api {
-  constructor() {
+  rand: number;
+  constructor(){
     super();
+    this.rand = Math.random();
+  }
 
+  @get(new Route('/'))
+  getProducts(req: Request, reply: Reply){
+    reply.send({
+      ts: this.rand
+    });
   }
 }
 
@@ -19,6 +27,7 @@ class ProductApi extends Api {
   port: 8080,
   api: {
     handlers: [ProductApi],
+    routePrefix: new Route('/api')
   },
   fragments: {
     handlers: []
@@ -26,6 +35,12 @@ class ProductApi extends Api {
   healthCheck: new Route('/healthcheck')
 })
 class Browsing extends Gateway {
+  rand: number;
+  constructor(){
+    super();
+    this.rand = Math.random();
+  }
+
   OnBeforeStart() {
     console.log('Starting Search gateway');
   }
@@ -33,7 +48,7 @@ class Browsing extends Gateway {
   @get(new Route('/globalEndpoint'))
   ge(req: Request, reply: Reply){
     reply.send({
-      ts: Date.now()
+      ts: this.rand
     });
   }
 }

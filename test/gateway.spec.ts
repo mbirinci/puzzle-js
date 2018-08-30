@@ -170,6 +170,7 @@ describe('Gateway', () => {
     const routes = new Route(faker.random.word());
     const method = faker.random.arrayElement(Object.values(HTTP_METHODS));
     const handler = () => {
+      return routes;
     };
 
     class TestGateway extends Gateway {
@@ -195,6 +196,7 @@ describe('Gateway', () => {
     gateway.start();
 
     //Assert
-    expect(spy.calledWithExactly(decoratedRoute.routes, decoratedRoute.method, decoratedRoute.handler, decoratedRoute.schema)).to.eq(true);
+    expect(spy.calledWithExactly(decoratedRoute.routes, decoratedRoute.method, sinon.match.func, decoratedRoute.schema)).to.eq(true);
+    expect(spy.args[0][2]()).to.eq(routes);
   });
 });

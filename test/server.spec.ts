@@ -17,6 +17,60 @@ describe('Route', () => {
     //Assert
     expect(path).to.eq(`/${word}`);
   });
+
+  it('should append new route with new instance', () => {
+    //Arrange
+    const endpoint = faker.random.word();
+    const endpoint2 = faker.random.word();
+    const route2 = new Route(`/${endpoint2}`);
+    const route1 = new Route(`/${endpoint}`);
+    //Act
+    const resultingRoute = route1.append(route2);
+
+    //Assert
+    expect(resultingRoute.toString()).to.eq(`/${endpoint}/${endpoint2}`);
+    expect(resultingRoute).to.not.eq(route1);
+    expect(resultingRoute).to.not.eq(route2);
+  });
+
+  it('should return new route with same with if provided route is undefined for append', () => {
+    //Arrange
+    const endpoint = faker.random.word();
+    const route = new Route(`/${endpoint}`);
+    //Act
+    const resultingRoute = route.append(undefined);
+
+    //Assert
+    expect(resultingRoute.toString()).to.eq(`/${endpoint}`);
+    expect(resultingRoute).to.not.eq(route);
+  });
+
+  it('should prepend new route with new instance', () => {
+    //Arrange
+    const endpoint = faker.random.word();
+    const endpoint2 = faker.random.word();
+    const route2 = new Route(`/${endpoint2}`);
+    const route1 = new Route(`/${endpoint}`);
+    //Act
+    const resultingRoute = route1.prepend(route2);
+
+    //Assert
+    expect(resultingRoute.toString()).to.eq(`/${endpoint2}/${endpoint}`);
+    expect(resultingRoute).to.not.eq(route1);
+    expect(resultingRoute).to.not.eq(route2);
+  });
+
+  it('should return new route with same with if provided route is undefined for prepend', () => {
+    //Arrange
+    const endpoint = faker.random.word();
+    const route = new Route(`/${endpoint}`);
+    //Act
+    const resultingRoute = route.prepend(undefined);
+
+    //Assert
+    expect(resultingRoute.toString()).to.eq(`/${endpoint}`);
+    expect(resultingRoute).to.not.eq(route);
+  });
 });
 
 describe('Server', () => {
