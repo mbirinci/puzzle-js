@@ -12,7 +12,6 @@ export interface ApiConfig {
 }
 
 interface ApiBase {
-  decoratorRoutes: DecoratorRoute[];
 }
 
 export function PuzzleApi<T>(config: ApiConfig) {
@@ -24,7 +23,6 @@ export function PuzzleApi<T>(config: ApiConfig) {
 
 export class Api implements ApiBase {
   config: ApiConfig;
-  decoratorRoutes: DecoratorRoute[] = [];
 
   constructor() {
     const config = (this.constructor as any).config as ApiConfig;

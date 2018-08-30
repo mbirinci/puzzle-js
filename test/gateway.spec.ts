@@ -112,6 +112,9 @@ describe('Gateway', () => {
     expect(spy.calledOnce).to.eq(true);
   });
 
+  /**
+   * todo refactor healthcheck test
+   */
   it('should not add healthCheck endpoint if route is not provided', async () => {
     //Arrange
     const port = faker.random.number();
@@ -350,6 +353,9 @@ describe('Gateway', () => {
     expect(replySpy.calledWithExactly(res));
   });
 
+  /**
+   * todo refactor no endpoint for api test
+   */
   it('should not add api routes if not decorated routes', () => {
     //Arrange
     const port = faker.random.number();
