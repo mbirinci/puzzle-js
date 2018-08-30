@@ -53,6 +53,10 @@ export class Gateway implements GatewayBase {
     }
   }
 
+  /**
+   * Initializes gateway
+   * @returns {Promise<void>}
+   */
   async start() {
     this.healthCheckConfiguration();
 
@@ -76,12 +80,18 @@ export class Gateway implements GatewayBase {
 
   }
 
+  /**
+   * Adss gateway global endpoints
+   */
   private addDecoratedRoutes() {
     this.constructor.prototype.decoratorRoutes.forEach((decoratedRoute: DecoratorRoute) => {
       this.server.addRoute(decoratedRoute.routes, decoratedRoute.method, decoratedRoute.handler.bind(this), decoratedRoute.schema);
     });
   }
 
+  /**
+   * Adds api endpoints
+   */
   private addApiRoutes() {
     this.config.api.handlers.forEach(handler => {
       const handlerInstance = new handler();
@@ -97,6 +107,9 @@ export class Gateway implements GatewayBase {
     });
   }
 
+  /**
+   * Adds healthcheck endpoint if config exists
+   */
   private healthCheckConfiguration() {
     if (!this.config.healthCheck) return;
 
@@ -118,6 +131,9 @@ export class Gateway implements GatewayBase {
     });
   }
 
+  /**
+   * Starts gateway server
+   */
   private listen() {
     this.server.app.listen(this.config.port);
   }

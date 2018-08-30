@@ -169,12 +169,22 @@ export class Route {
     this.path = url[0] === '/' ? url : `/${url}`;
   }
 
+  /**
+   * Adds given route to this routes and returns new Route instance
+   * @param {Route} route
+   * @returns {Route}
+   */
   append(route?: Route) {
     if (!route) return new Route(this.path);
 
     return new Route(this.path + route.toString());
   }
 
+  /**
+   * Adds given route front of this routes and returns new Route instance
+   * @param {Route} route
+   * @returns {Route}
+   */
   prepend(route?: Route) {
     if (!route) return new Route(this.path);
 
