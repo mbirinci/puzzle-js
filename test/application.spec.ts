@@ -105,7 +105,7 @@ describe('ApplicationCore', () => {
     const config = {
       gateway: [GatewayTest, GatewayTest2]
     } as BootstrapConfig;
-    const stub = sandbox.spy(Gateway.prototype, "start");
+    const stub = sandbox.stub(Gateway.prototype, "start");
     const application = new Application();
 
     //Act
