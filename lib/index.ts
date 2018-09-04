@@ -2,16 +2,44 @@ import {Gateway, PuzzleGateway} from "./gateway";
 import {Application, PuzzleApplication} from "./application";
 import {Api, PuzzleApi} from "./api";
 import {get, Reply, Request, Route} from "./server";
+import {Injectable} from "./injector";
+
+@Injectable
+class UselessRandomGenerator {
+  random() {
+    return Math.random();
+  }
+}
 
 @PuzzleApi({
-  route: new Route('/product')
+  route: new Route('/items'),
+})
+class ProductUserController extends Api {
+  rand: number;
+
+  constructor(randomGenerator: UselessRandomGenerator) {
+    super();
+    this.rand = randomGenerator.random();
+  }
+
+  @get(new Route('/all'))
+  getProducts(req: Request, reply: Reply) {
+    reply.send({
+      ts: this.rand
+    });
+  }
+}
+
+@PuzzleApi({
+  route: new Route('/user'),
+  subApis: [ProductUserController]
 })
 class ProductApi extends Api {
   rand: number;
 
-  constructor() {
+  constructor(randomGenerator: UselessRandomGenerator) {
     super();
-    this.rand = Math.random();
+    this.rand = randomGenerator.random();
   }
 
   @get(new Route('/'))
@@ -36,17 +64,17 @@ class ProductApi extends Api {
 class Browsing extends Gateway {
   rand: number;
 
-  constructor() {
+  constructor(randomGenerator: UselessRandomGenerator) {
     super();
-    this.rand = Math.random();
+    this.rand = randomGenerator.random();
   }
 
   OnBeforeStart() {
-    console.log('Starting Search gateway');
+    console.log('Starting Browsing gateway');
   }
 
   @get(new Route('/globalEndpoint'))
-  ge(req: Request, reply: Reply) {
+  globalEndpointHandler(req: Request, reply: Reply) {
     reply.send({
       ts: this.rand
     });
@@ -75,13 +103,12 @@ class Search extends Gateway {
 class GatewayApplication extends Application {
   superGlobal: number;
 
-  constructor() {
+  constructor(randomGenerator: UselessRandomGenerator) {
     super();
-
-    this.superGlobal = Math.random();
+    this.superGlobal = randomGenerator.random();
   }
 
-  OnBeforeStart() {
+  async OnBeforeStart() {
     console.log('Starting Application');
   }
 }

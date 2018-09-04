@@ -1,6 +1,6 @@
-import {Injector} from "./injector";
+import {Ctor, Injector} from "./injector";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import {DecoratorRoute, Route} from "./server";
+import {Route} from "./server";
 
 
 export interface ApiEvents {
@@ -9,6 +9,7 @@ export interface ApiEvents {
 
 export interface ApiConfig {
   route: Route;
+  subApis?: Array<Ctor<Api>>;
 }
 
 interface ApiBase {

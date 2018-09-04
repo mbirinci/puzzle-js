@@ -93,17 +93,25 @@ export class Gateway implements GatewayBase {
    * Adds api endpoints
    */
   private addApiRoutes() {
-    this.config.api.handlers.forEach(handler => {
-      const handlerInstance = new handler();
-      if (handler.prototype.decoratorRoutes) {
-        (handler.prototype.decoratorRoutes).forEach((decoratedRoute: DecoratorRoute) => {
+    const appendRoutes = (api: Ctor<Api>, routePrefix?: Route) => {
+      const handlerInstance = Injector.get(api);
+      if (api.prototype.decoratorRoutes) {
+        (api.prototype.decoratorRoutes).forEach((decoratedRoute: DecoratorRoute) => {
           const routes = Array.isArray(decoratedRoute.routes) ? decoratedRoute.routes : [decoratedRoute.routes];
 
           this.server.addRoute(routes.map(route => {
-            return handlerInstance.config.route.prepend(this.config.api.routePrefix).append(route);
+            return handlerInstance.config.route.prepend(routePrefix).append(route);
           }), decoratedRoute.method, decoratedRoute.handler.bind(handlerInstance), decoratedRoute.schema);
         });
       }
+
+      if(handlerInstance.config.subApis){
+        handlerInstance.config.subApis.forEach(api => appendRoutes(api, handlerInstance.config.route.prepend(routePrefix)));
+      }
+    };
+
+    this.config.api.handlers.forEach(handler => {
+      appendRoutes(handler, this.config.api.routePrefix);
     });
   }
 

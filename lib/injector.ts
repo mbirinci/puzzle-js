@@ -105,7 +105,7 @@ export class Injector {
    * @param {object} config
    * @returns {ConfiguredDecorator}
    */
-  private static inject<T>(constructor: Ctor<T>, config?: T): ConfiguredDecorator {
+  static inject<T>(constructor: Ctor<T>, config?: T): ConfiguredDecorator {
     Injector.instances.push({constructor, instance: null, config});
     return constructor;
   }

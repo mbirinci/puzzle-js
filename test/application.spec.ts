@@ -64,7 +64,6 @@ describe('ApplicationCore', () => {
     const config = {
       gateway: GatewayTest
     } as BootstrapConfig;
-    const spy = sandbox.spy(GatewayTest.prototype, "OnBeforeStart");
     const stub = sandbox.stub(Gateway.prototype, "start");
     const application = new Application();
 
@@ -74,7 +73,6 @@ describe('ApplicationCore', () => {
 
 
     //Assert
-    expect(spy.calledOnce).to.eq(true);
     expect(stub.calledOnce).to.eq(true);
   });
 
@@ -107,9 +105,7 @@ describe('ApplicationCore', () => {
     const config = {
       gateway: [GatewayTest, GatewayTest2]
     } as BootstrapConfig;
-    const spy1 = sandbox.spy(GatewayTest.prototype, "OnBeforeStart");
-    const spy2 = sandbox.spy(GatewayTest2.prototype, "OnBeforeStart");
-    const stub = sandbox.stub(Gateway.prototype, "start");
+    const stub = sandbox.spy(Gateway.prototype, "start");
     const application = new Application();
 
     //Act
@@ -118,8 +114,6 @@ describe('ApplicationCore', () => {
 
 
     //Assert
-    expect(spy1.calledOnce).to.eq(true);
-    expect(spy2.calledOnce).to.eq(true);
     expect(stub.calledTwice).to.eq(true);
   });
 });

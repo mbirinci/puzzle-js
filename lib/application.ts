@@ -14,12 +14,16 @@ export interface BootstrapConfig {
  * @constructor
  */
 export function PuzzleApplication(config: BootstrapConfig) {
-  return Injector.decorate((constructor: new () => Application) => {
-    const application = new constructor();
+  const injectStarter = (constructor: Ctor<any>) => {
+    const configuredConstructor = Injector.inject(constructor, config as any);
+    configuredConstructor.config = config;
+    const application = Injector.get(configuredConstructor);
     application.init(config);
-    Injector.set(constructor, application);
     application.start();
-  }, config);
+    return constructor;
+  };
+
+  return (constructor: Ctor<any>) => injectStarter(constructor) as Ctor<any>;
 }
 
 
@@ -32,19 +36,18 @@ export class Application {
 
   async start() {
     await this.OnBeforeStart();
-    this.startGateways();
+    await this.startGateways();
     //this.startStorefronts();
   }
 
-  private startGateways() {
+  private async startGateways() {
     const gateways = (this.config.gateway ?
-      (Array.isArray(this.config.gateway) ? this.config.gateway : [this.config.gateway]): [])
+      (Array.isArray(this.config.gateway) ? this.config.gateway : [this.config.gateway]) : [])
       .map(gateway => Injector.get(gateway)) as Gateway[];
 
-    gateways.forEach(async gateway => {
-      await gateway.OnBeforeStart();
-      gateway.start();
-    });
+    return Promise.all(gateways.map(async gateway => {
+      await gateway.start();
+    }));
   }
 
   // private startStorefronts() {

@@ -5,7 +5,7 @@ import * as faker from "faker";
 import sinon from "sinon";
 import {ERROR_CODES, PuzzleError} from "../lib/errors";
 import {get, HTTP_METHODS, Reply, Route} from "../lib/server";
-import {Api} from "../lib/api";
+import {Api, PuzzleApi} from "../lib/api";
 
 let sandbox: sinon.SinonSandbox;
 
@@ -204,7 +204,7 @@ describe('Gateway', () => {
     expect(spy.args[0][2]()).to.eq(routes);
   });
 
-  it('should add api routes without prefix', () => {
+  it('should add api routes without prefix', async () => {
     //Arrange
     const port = faker.random.number();
     const endpoint = faker.random.word();
@@ -214,15 +214,15 @@ describe('Gateway', () => {
       word: faker.random.word()
     };
     const reply = {
-      send: () => {}
+      send: () => {
+      }
     };
     const replySpy = sinon.spy(reply, 'send');
 
+    @PuzzleApi({
+      route: new Route(`/${apiRoute}`)
+    })
     class TestApi extends Api {
-      static config = mockApiConfiguration({
-        route: new Route(`/${apiRoute}`)
-      });
-
       @get(new Route(`/${endpoint}`), schema)
       handler(req: any, reply: Reply) {
         reply.send(res);
@@ -241,7 +241,7 @@ describe('Gateway', () => {
     const gateway = new TestGateway();
     const spy = sandbox.stub(gateway.server, 'addRoute');
     sandbox.stub(gateway.server.app, 'listen');
-    gateway.start();
+    await gateway.start();
     spy.args[0][2](null, reply);
 
     //Assert
@@ -266,11 +266,10 @@ describe('Gateway', () => {
     };
     const replySpy = sinon.spy(reply, 'send');
 
+    @PuzzleApi({
+      route: new Route(`/${apiRoute}`)
+    })
     class TestApi extends Api {
-      static config = mockApiConfiguration({
-        route: new Route(`/${apiRoute}`)
-      });
-
       @get(new Route(`/${endpoint}`), schema)
       handler(req: any, reply: Reply) {
         reply.send(res);
@@ -317,11 +316,10 @@ describe('Gateway', () => {
     };
     const replySpy = sinon.spy(reply, 'send');
 
+    @PuzzleApi({
+      route: new Route(`/${apiRoute}`)
+    })
     class TestApi extends Api {
-      static config = mockApiConfiguration({
-        route: new Route(`/${apiRoute}`)
-      });
-
       @get([new Route(`/${endpoint}`)], schema)
       handler(req: any, reply: Reply) {
         reply.send(res);
@@ -353,6 +351,70 @@ describe('Gateway', () => {
     expect(replySpy.calledWithExactly(res));
   });
 
+  it('should add sub api routes', () => {
+    //Arrange
+    const port = faker.random.number();
+    const endpoint = faker.random.word();
+    const apiRoute = faker.random.word();
+    const subApiRoute = faker.random.word();
+    const prefix = faker.random.word();
+    const schema = {};
+    const res = {
+      word: faker.random.word()
+    };
+    const reply = {
+      send: () => {}
+    };
+    const replySpy = sinon.spy(reply, 'send');
+
+    @PuzzleApi({
+      route: new Route(`/${subApiRoute}`),
+    })
+    class TestApiSub extends Api {
+      @get([new Route(`/${endpoint}`)], schema)
+      handler(req: any, reply: Reply) {
+        reply.send(res);
+      }
+    }
+
+    @PuzzleApi({
+      route: new Route(`/${apiRoute}`),
+      subApis: [TestApiSub]
+    })
+    class TestApi extends Api {
+      @get([new Route(`/${endpoint}`)], schema)
+      handler(req: any, reply: Reply) {
+        reply.send(res);
+      }
+    }
+
+    class TestGateway extends Gateway {
+      static config = mockGatewayConfiguration({
+        port,
+        api: {
+          handlers: [TestApi],
+          routePrefix: new Route(`/${prefix}`)
+        }
+      });
+    }
+
+
+    //Act
+    const gateway = new TestGateway();
+    const spy = sandbox.stub(gateway.server, 'addRoute');
+    sandbox.stub(gateway.server.app, 'listen');
+    gateway.start();
+    spy.args[0][2](null, reply);
+
+    //Assert
+    expect(spy.calledWithExactly(sinon.match(i => {
+      return i.toString() === `/${prefix}/${apiRoute}/${endpoint}`;
+    }), HTTP_METHODS.GET, sinon.match.func, schema)).to.eq(true);expect(spy.calledWithExactly(sinon.match(i => {
+      return i.toString() === `/${prefix}/${apiRoute}/${subApiRoute}/${endpoint}`;
+    }), HTTP_METHODS.GET, sinon.match.func, schema)).to.eq(true);
+    expect(replySpy.calledWithExactly(res));
+  });
+
   /**
    * todo refactor no endpoint for api test
    */
@@ -371,20 +433,22 @@ describe('Gateway', () => {
     };
     const replySpy = sinon.spy(reply, 'send');
 
+    @PuzzleApi({
+      route: new Route(`/${apiRoute}`)
+    })
     class TestApi extends Api {
-      static config = mockApiConfiguration({
-        route: new Route(`/${apiRoute}`)
-      });
+
     }
 
+    @PuzzleGateway(mockGatewayConfiguration({
+      port,
+      api: {
+        handlers: [TestApi],
+        routePrefix: new Route(`/${prefix}`)
+      }
+    }))
     class TestGateway extends Gateway {
-      static config = mockGatewayConfiguration({
-        port,
-        api: {
-          handlers: [TestApi],
-          routePrefix: new Route(`/${prefix}`)
-        }
-      });
+
     }
 
 
