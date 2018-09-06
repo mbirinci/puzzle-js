@@ -21,6 +21,7 @@ export class PuzzleError extends Error {
    */
   constructor(ERROR_CODE: ERROR_CODES = ERROR_CODES.UNKNOWN, ...args: string[]) {
     super(ERROR_MESSAGES[ERROR_CODE].apply(null, args));
+
     Object.setPrototypeOf(this, PuzzleError.prototype);
   }
 }

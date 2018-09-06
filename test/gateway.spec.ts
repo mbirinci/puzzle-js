@@ -7,6 +7,8 @@ import {ERROR_CODES, PuzzleError} from "../lib/errors";
 import {get, HTTP_METHODS, Reply, Route} from "../lib/server";
 import {Api, PuzzleApi} from "../lib/api";
 
+const fastifySwagger = require('fastify-swagger');
+
 let sandbox: sinon.SinonSandbox;
 
 describe('Gateway', () => {
@@ -58,7 +60,58 @@ describe('Gateway', () => {
 
     //Assert
     expect(spy.calledOnce).to.eq(true);
-    expect(spy.calledWithExactly(port)).to.eq(true);
+    expect(spy.calledWithExactly(port, sinon.match.func)).to.eq(true);
+  });
+
+  it('should add swagger route if config provided', async () => {
+    //Arrange
+    const port = faker.random.number();
+
+    class TestGateway extends Gateway {
+      static config = mockGatewayConfiguration({
+        port,
+        swagger: {
+          title: '',
+          route: new Route('/'),
+          description: ''
+        }
+      });
+    }
+
+    const gateway = new TestGateway();
+    sandbox.stub(gateway.server.app, 'listen').callsArgWith(1, null);
+    const spy = sandbox.stub(gateway.server.app, 'register');
+    //Act
+    await gateway.start();
+
+    //Assert
+    expect(spy.calledOnce).to.eq(true);
+    expect(spy.calledWithExactly(fastifySwagger, sinon.match.object)).to.eq(true);
+  });
+
+  it('should throw exception if server listen fails', async () => {
+    //Arrange
+    const port = faker.random.number();
+
+    class TestGateway extends Gateway {
+      static config = mockGatewayConfiguration({port});
+    }
+
+    const gateway = new TestGateway();
+    const exception = faker.random.word();
+    sandbox.stub(gateway.server.app, 'listen').callsArgWith(1, exception);
+
+    let handledException = null;
+    //Act
+
+    try {
+      await gateway.start();
+    } catch (e) {
+      handledException = e;
+    }
+
+    //Assert
+    expect(handledException).to.eq(exception);
   });
 
   it('should call OnBeforeStart before starting to listen', async () => {
@@ -262,7 +315,8 @@ describe('Gateway', () => {
       word: faker.random.word()
     };
     const reply = {
-      send: () => {}
+      send: () => {
+      }
     };
     const replySpy = sinon.spy(reply, 'send');
 
@@ -312,7 +366,8 @@ describe('Gateway', () => {
       word: faker.random.word()
     };
     const reply = {
-      send: () => {}
+      send: () => {
+      }
     };
     const replySpy = sinon.spy(reply, 'send');
 
@@ -363,7 +418,8 @@ describe('Gateway', () => {
       word: faker.random.word()
     };
     const reply = {
-      send: () => {}
+      send: () => {
+      }
     };
     const replySpy = sinon.spy(reply, 'send');
 
@@ -409,7 +465,8 @@ describe('Gateway', () => {
     //Assert
     expect(spy.calledWithExactly(sinon.match(i => {
       return i.toString() === `/${prefix}/${apiRoute}/${endpoint}`;
-    }), HTTP_METHODS.GET, sinon.match.func, schema)).to.eq(true);expect(spy.calledWithExactly(sinon.match(i => {
+    }), HTTP_METHODS.GET, sinon.match.func, schema)).to.eq(true);
+    expect(spy.calledWithExactly(sinon.match(i => {
       return i.toString() === `/${prefix}/${apiRoute}/${subApiRoute}/${endpoint}`;
     }), HTTP_METHODS.GET, sinon.match.func, schema)).to.eq(true);
     expect(replySpy.calledWithExactly(res));
@@ -428,7 +485,8 @@ describe('Gateway', () => {
       word: faker.random.word()
     };
     const reply = {
-      send: () => {}
+      send: () => {
+      }
     };
     const replySpy = sinon.spy(reply, 'send');
 
@@ -505,13 +563,6 @@ describe('Gateway', () => {
     const apiRoute = faker.random.word();
     const prefix = faker.random.word();
     const schema = {};
-    const res = {
-      word: faker.random.word()
-    };
-    const reply = {
-      send: () => {}
-    };
-    const replySpy = sinon.spy(reply, 'send');
 
     @PuzzleApi({
       route: new Route(`/${apiRoute}`)

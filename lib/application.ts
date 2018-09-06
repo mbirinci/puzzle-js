@@ -1,10 +1,13 @@
 import "reflect-metadata";
 import {Ctor, Injector} from "./injector";
 import {Gateway} from "./gateway";
+import cluster from "cluster";
+import os from "os";
 
 export interface BootstrapConfig {
   gateway?: Array<Ctor<Gateway>> | Ctor<Gateway>;
   storefront?: Array<Ctor<any>> | Ctor<any>;
+  clusterMode?: boolean; //todo cluster.fork
 }
 
 /**
@@ -35,9 +38,25 @@ export class Application {
   }
 
   async start() {
-    await this.OnBeforeStart();
-    await this.startGateways();
+    if (this.config.clusterMode && cluster.isMaster) {
+      this.clusterMaster();
+    } else {
+      await this.OnBeforeStart();
+      await this.startGateways();
+    }
     //this.startStorefronts();
+  }
+
+  private clusterMaster() {
+    const cpus = os.cpus();
+    cpus.forEach(cpu => {
+      cluster.fork();
+    });
+
+    cluster.on('exit', (worker, code, signal) => {
+      console.log(`worker ${worker.process.pid} died`);
+      cluster.fork();
+    });
   }
 
   private async startGateways() {

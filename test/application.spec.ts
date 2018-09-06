@@ -4,6 +4,10 @@ import sinon from "sinon";
 import {Injector} from "../lib/injector";
 import {Gateway, PuzzleGateway} from "../lib/gateway";
 import {mockGatewayConfiguration} from "./mock";
+import faker from "faker";
+
+const cluster = require('cluster');
+const os = require('os');
 
 let sandbox: sinon.SinonSandbox;
 
@@ -115,5 +119,85 @@ describe('ApplicationCore', () => {
 
     //Assert
     expect(stub.calledTwice).to.eq(true);
+  });
+
+  it('should create cluster for application if clusterMode true and process is master', () => {
+    //Arrange
+    const application = new Application();
+    application.init({
+      clusterMode: true
+    });
+    const cpus = new Array(50).fill(null).map(cpu => faker.random.word());
+    sandbox.stub(os, 'cpus').returns(cpus);
+    sandbox.stub(cluster, 'isMaster').value(true);
+    const spy = sandbox.stub(cluster, 'fork');
+    sandbox.stub(cluster, 'on');
+
+    //Act
+    application.start();
+
+    //Assert
+    expect(spy.callCount).to.eq(cpus.length);
+  });
+
+  it('should not create cluster for application if clusterMode true but process is slave', () => {
+    //Arrange
+    const application = new Application();
+    application.init({
+      clusterMode: true
+    });
+    const cpus = new Array(50).fill(null).map(cpu => faker.random.word());
+    sandbox.stub(os, 'cpus').returns(cpus);
+    sandbox.stub(cluster, 'isMaster').value(false);
+    const spy = sandbox.stub(cluster, 'fork');
+    sandbox.stub(cluster, 'on');
+
+    //Act
+    application.start();
+
+    //Assert
+    expect(spy.notCalled).to.eq(true);
+  });
+
+  it('should not create cluster for application if cluster mode not activated', () => {
+    //Arrange
+    const application = new Application();
+    application.init({});
+    const cpus = new Array(50).fill(null).map(cpu => faker.random.word());
+    sandbox.stub(os, 'cpus').returns(cpus);
+    sandbox.stub(cluster, 'isMaster').value(true);
+    const spy = sandbox.stub(cluster, 'fork');
+    sandbox.stub(cluster, 'on');
+
+    //Act
+    application.start();
+
+
+    //Assert
+    expect(spy.notCalled).to.eq(true);
+  });
+
+  it('should fork cluster again on error', async () => {
+    //Arrange
+    const application = new Application();
+    const cpuCount = faker.random.number({min: 2, max: 5});
+    application.init({
+      clusterMode: true
+    });
+    const cpus = new Array(cpuCount).fill(null).map(cpu => faker.random.word());
+    sandbox.stub(os, 'cpus').returns(cpus);
+    sandbox.stub(cluster, 'isMaster').value(true);
+    const spy = sandbox.stub(cluster, 'fork');
+
+    //Act
+    application.start();
+    cluster.emit("exit", {
+      process:{
+        pid: faker.random.number()
+      }
+    });
+
+    //Assert
+    expect(spy.callCount).to.eq(cpuCount + 1);
   });
 });

@@ -14,7 +14,7 @@ class UselessRandomGenerator {
 @PuzzleApi({
   route: new Route('/items'),
 })
-class ProductUserController extends Api {
+class ProductItemController extends Api {
   rand: number;
 
   constructor(randomGenerator: UselessRandomGenerator) {
@@ -22,8 +22,35 @@ class ProductUserController extends Api {
     this.rand = randomGenerator.random();
   }
 
-  @get(new Route('/all'))
-  getProducts(req: Request, reply: Reply) {
+  @get(new Route('/:id'), {
+    params: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string'
+        }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          ts: {
+            type: 'number'
+          }
+        }
+      }
+    }
+  })
+  getItemsById(req: Request, reply: Reply) {
+    reply.send({
+      ts: this.rand
+    });
+  }
+
+
+  @get(new Route('/'))
+  getItems(req: Request, reply: Reply) {
     reply.send({
       ts: this.rand
     });
@@ -32,7 +59,7 @@ class ProductUserController extends Api {
 
 @PuzzleApi({
   route: new Route('/user'),
-  subApis: [ProductUserController]
+  subApis: [ProductItemController]
 })
 class ProductApi extends Api {
   rand: number;
@@ -59,7 +86,12 @@ class ProductApi extends Api {
   fragments: {
     handlers: []
   },
-  healthCheck: new Route('/healthcheck')
+  healthCheck: new Route('/healthcheck'),
+  swagger: {
+    route: new Route('/docs'),
+    title: 'Gateway',
+    description: 'Documentation'
+  }
 })
 class Browsing extends Gateway {
   rand: number;
@@ -98,7 +130,7 @@ class Search extends Gateway {
 
 
 @PuzzleApplication({
-  gateway: [Browsing, Search],
+  gateway: [Browsing, Search]
 })
 class GatewayApplication extends Application {
   superGlobal: number;

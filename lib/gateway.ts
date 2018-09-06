@@ -3,6 +3,8 @@ import {DecoratorRoute, HTTP_METHODS, Route, Server} from "./server";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import {Api} from "./api";
 
+const fastifySwagger = require("fastify-swagger");
+
 export interface GatewayConfig {
   port: number;
   api: {
@@ -14,6 +16,11 @@ export interface GatewayConfig {
     handlers: any[];
   };
   healthCheck?: Route;
+  swagger?: {
+    title: string;
+    description: string;
+    route: Route;
+  };
 }
 
 /**
@@ -58,6 +65,8 @@ export class Gateway implements GatewayBase {
    * @returns {Promise<void>}
    */
   async start() {
+    this.addSwaggerRoutes();
+
     this.healthCheckConfiguration();
 
     if (this.constructor.prototype.decoratorRoutes) {
@@ -105,7 +114,7 @@ export class Gateway implements GatewayBase {
         });
       }
 
-      if(handlerInstance.config.subApis){
+      if (handlerInstance.config.subApis) {
         handlerInstance.config.subApis.forEach(api => appendRoutes(api, handlerInstance.config.route.prepend(routePrefix)));
       }
     };
@@ -143,6 +152,23 @@ export class Gateway implements GatewayBase {
    * Starts gateway server
    */
   private listen() {
-    this.server.app.listen(this.config.port);
+    this.server.app.listen(this.config.port, err => {
+      if (err) throw err;
+    });
+  }
+
+  private addSwaggerRoutes() {
+    if (this.config.swagger) {
+      this.server.app.register(fastifySwagger, {
+        routePrefix: this.config.swagger.route.toString(),
+        exposeRoute: true,
+        swagger: {
+          info: {
+            title: this.config.swagger.title,
+            description: this.config.swagger.description,
+          }
+        }
+      });
+    }
   }
 }

@@ -9,6 +9,7 @@
   "dependencies": {
     "@types/spdy": "^3.4.4",
     "fastify": "^1.9.0",
+    "fastify-swagger": "^0.15.0",
     "http": "^0.0.0",
     "https": "^1.0.0",
     "reflect-metadata": "^0.1.12",

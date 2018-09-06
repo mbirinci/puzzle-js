@@ -106,9 +106,7 @@ export class Server {
   app: fastify.FastifyInstance;
 
   constructor() {
-    this.app = fastify({
-      logger: true,
-    });
+    this.app = fastify();
 
     //this.decorateChunk();
   }
