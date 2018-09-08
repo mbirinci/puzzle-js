@@ -243,7 +243,7 @@ describe('Gateway', () => {
       routes,
       method,
       handler,
-      schema: {}
+      config: {schema: {}}
     };
 
     const spy = sandbox.stub(gateway.server, 'addRoute');
@@ -253,7 +253,7 @@ describe('Gateway', () => {
     gateway.start();
 
     //Assert
-    expect(spy.calledWithExactly(decoratedRoute.routes, decoratedRoute.method, sinon.match.func, decoratedRoute.schema)).to.eq(true);
+    expect(spy.calledWithExactly(decoratedRoute.routes, decoratedRoute.method, sinon.match.func, decoratedRoute.config.schema)).to.eq(true);
     expect(spy.args[0][2]()).to.eq(routes);
   });
 
@@ -276,7 +276,7 @@ describe('Gateway', () => {
       route: new Route(`/${apiRoute}`)
     })
     class TestApi extends Api {
-      @get(new Route(`/${endpoint}`), schema)
+      @get(new Route(`/${endpoint}`), {schema})
       handler(req: any, reply: Reply) {
         reply.send(res);
       }
@@ -324,7 +324,7 @@ describe('Gateway', () => {
       route: new Route(`/${apiRoute}`)
     })
     class TestApi extends Api {
-      @get(new Route(`/${endpoint}`), schema)
+      @get(new Route(`/${endpoint}`), {schema})
       handler(req: any, reply: Reply) {
         reply.send(res);
       }
@@ -375,7 +375,7 @@ describe('Gateway', () => {
       route: new Route(`/${apiRoute}`)
     })
     class TestApi extends Api {
-      @get([new Route(`/${endpoint}`)], schema)
+      @get([new Route(`/${endpoint}`)], {schema})
       handler(req: any, reply: Reply) {
         reply.send(res);
       }
@@ -427,7 +427,7 @@ describe('Gateway', () => {
       route: new Route(`/${subApiRoute}`),
     })
     class TestApiSub extends Api {
-      @get([new Route(`/${endpoint}`)], schema)
+      @get([new Route(`/${endpoint}`)], {schema})
       handler(req: any, reply: Reply) {
         reply.send(res);
       }
@@ -438,7 +438,7 @@ describe('Gateway', () => {
       subApis: [TestApiSub]
     })
     class TestApi extends Api {
-      @get([new Route(`/${endpoint}`)], schema)
+      @get([new Route(`/${endpoint}`)], {schema})
       handler(req: any, reply: Reply) {
         reply.send(res);
       }
@@ -494,7 +494,7 @@ describe('Gateway', () => {
       route: new Route(`/${sub2ApiRoute}`),
     })
     class TestApiSub2 extends Api {
-      @get([new Route(`/${endpoint}`)], schema)
+      @get([new Route(`/${endpoint}`)], {schema})
       handler(req: any, reply: Reply) {
         reply.send(res);
       }
@@ -505,7 +505,7 @@ describe('Gateway', () => {
       subApis: [TestApiSub2]
     })
     class TestApiSub extends Api {
-      @get([new Route(`/${endpoint}`)], schema)
+      @get([new Route(`/${endpoint}`)], {schema})
       handler(req: any, reply: Reply) {
         reply.send(res);
       }
@@ -516,7 +516,7 @@ describe('Gateway', () => {
       subApis: [TestApiSub]
     })
     class TestApi extends Api {
-      @get([new Route(`/${endpoint}`)], schema)
+      @get([new Route(`/${endpoint}`)], {schema})
       handler(req: any, reply: Reply) {
         reply.send(res);
       }

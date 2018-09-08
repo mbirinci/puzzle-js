@@ -214,7 +214,7 @@ describe('Server', () => {
       routes,
       method: HTTP_METHODS.GET,
       handler,
-      schema: undefined
+      config: {}
     });
   });
 
@@ -235,7 +235,7 @@ describe('Server', () => {
       routes,
       method: HTTP_METHODS.POST,
       handler,
-      schema: undefined
+      config: {}
     });
   });
 
@@ -256,7 +256,7 @@ describe('Server', () => {
       routes,
       method: HTTP_METHODS.PUT,
       handler,
-      schema: undefined
+      config: {}
     });
   });
 
@@ -277,7 +277,7 @@ describe('Server', () => {
       routes,
       method: HTTP_METHODS.DELETE,
       handler,
-      schema: undefined
+      config: {}
     });
   });
 
@@ -298,7 +298,7 @@ describe('Server', () => {
       routes,
       method: HTTP_METHODS.HEAD,
       handler,
-      schema: undefined
+      config: {}
     });
   });
 });

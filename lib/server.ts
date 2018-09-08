@@ -21,7 +21,7 @@ export interface DecoratorRoute {
   routes: Route[];
   method: HTTP_METHODS;
   handler: Handler;
-  schema?: JsonSchema;
+  config: HandlerConfiguration;
 }
 
 export type Middleware = (req: IncomingMessage, reply: ServerResponse, next: Function) => void;
@@ -42,47 +42,50 @@ export interface JsonChild {
   };
 }
 
-export interface JsonSchema {
-  response?: {
-    [statusCode: number]: {
-      type: string;
-      properties?: JsonChild;
+export interface HandlerConfiguration {
+  schema?: {
+    response?: {
+      [statusCode: number]: {
+        type: string;
+        properties?: JsonChild;
+      };
+    };
+    body?: {
+      type: 'object',
+      properties: JsonChild
+      required?: string[];
+    };
+    querystring?: {
+      type: 'object',
+      properties: JsonChild
+      required?: string[];
+    };
+    params?: {
+      type: 'object',
+      properties: JsonChild
+      required?: string[];
+    };
+    headers?: {
+      type: 'object',
+      properties: JsonChild
+      required?: string[];
     };
   };
-  body?: {
-    type: 'object',
-    properties: JsonChild
-    required?: string[];
-  };
-  querystring?: {
-    type: 'object',
-    properties: JsonChild
-    required?: string[];
-  };
-  params?: {
-    type: 'object',
-    properties: JsonChild
-    required?: string[];
-  };
-  headers?: {
-    type: 'object',
-    properties: JsonChild
-    required?: string[];
-  };
+  hooks?: any[];
 }
 
 /**
  * Generates decorator to bind route to method
  * @param {HTTP_METHODS} method
- * @returns {(routes: (Route[] | Route), schema?: JsonSchema) => <T extends Gateway>(target: T, propertyKey: string, descriptor: PropertyDescriptor) => ReplyDescriptor}
+ * @returns {(routes: (Route[] | Route), schema?: HandlerConfiguration) => <T extends Gateway>(target: T, propertyKey: string, descriptor: PropertyDescriptor) => ReplyDescriptor}
  */
-const decoratedRouteGenerator = (method: HTTP_METHODS) => (routes: Route[] | Route, schema?: JsonSchema) => {
+const decoratedRouteGenerator = (method: HTTP_METHODS) => (routes: Route[] | Route, config?: HandlerConfiguration) => {
   return <T extends Gateway | Api>(target: T, propertyKey: string, descriptor: PropertyDescriptor) => {
     const decoratedHandler = {
       routes,
       method,
       handler: descriptor.value,
-      schema
+      config: config || {}
     };
 
     if (target.constructor.prototype.decoratorRoutes) {
@@ -118,14 +121,14 @@ export class Server {
    * @param {Handler} handler
    * @param {fastify.RouteSchema} schema
    */
-  addRoute(route: Route[] | Route, method: HTTP_METHODS, handler: Handler, schema?: JsonSchema) {
+  addRoute(route: Route[] | Route, method: HTTP_METHODS, handler: Handler, schema?: JSONSchema) {
     const routes = Array.isArray(route) ? route.map(route => route.toString()) : [route.toString()];
 
     routes.forEach(route => {
       this.app.route({
         method,
         url: route,
-        ...schema ? {schema: schema as JSONSchema} : {},
+        ...schema ? {schema} : {},
         handler: (handler as RequestHandler<IncomingMessage, ServerResponse>),
       });
     });

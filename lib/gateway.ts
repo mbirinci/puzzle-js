@@ -94,7 +94,7 @@ export class Gateway implements GatewayBase {
    */
   private addDecoratedRoutes() {
     this.constructor.prototype.decoratorRoutes.forEach((decoratedRoute: DecoratorRoute) => {
-      this.server.addRoute(decoratedRoute.routes, decoratedRoute.method, decoratedRoute.handler.bind(this), decoratedRoute.schema);
+      this.server.addRoute(decoratedRoute.routes, decoratedRoute.method, decoratedRoute.handler.bind(this), decoratedRoute.config.schema);
     });
   }
 
@@ -110,7 +110,7 @@ export class Gateway implements GatewayBase {
 
           this.server.addRoute(routes.map(route => {
             return handlerInstance.config.route.prepend(routePrefix).append(route);
-          }), decoratedRoute.method, decoratedRoute.handler.bind(handlerInstance), decoratedRoute.schema);
+          }), decoratedRoute.method, decoratedRoute.handler.bind(handlerInstance), decoratedRoute.config.schema);
         });
       }
 
