@@ -3,9 +3,7 @@ import {ERROR_CODES, PuzzleError} from "./errors";
 import {Route} from "./server";
 
 
-export interface ApiEvents {
-
-}
+export interface ApiEvents {}
 
 export interface ApiConfig {
   route: Route;

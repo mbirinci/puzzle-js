@@ -1,8 +1,10 @@
 import {Injectable} from "./injector";
-import fastify, {FastifyReply, FastifyRequest, JSONSchema, RequestHandler} from "fastify";
-import {IncomingMessage, ServerResponse} from "http";
+import {FastifyInstance, FastifyReply, FastifyRequest, JSONSchema, RequestHandler} from "fastify";
+import {IncomingMessage, ServerResponse, Server as HttpServer} from "http";
 import {Gateway} from "./gateway";
 import {Api} from "./api";
+
+const fastify = require('fastify');
 
 
 export interface Reply extends FastifyReply<ServerResponse> {
@@ -106,7 +108,7 @@ export const del = decoratedRouteGenerator(HTTP_METHODS.DELETE);
 
 @Injectable
 export class Server {
-  app: fastify.FastifyInstance;
+  app: FastifyInstance<HttpServer, IncomingMessage, ServerResponse>;
 
   constructor() {
     this.app = fastify();
