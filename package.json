@@ -1,6 +1,6 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "0.0.1",
+  "version": "4.0.0",
   "description": "Front-end microservices framework for scalable and blazing fast websites.",
   "main": "/dist/index.js",
   "repository": "https://github.com/puzzle-js/PuzzleJs.git",
